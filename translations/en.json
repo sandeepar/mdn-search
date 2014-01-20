@@ -57,5 +57,9 @@
     },
     "search": {
         "empty": "Please enter search text!"
+    },
+    "oauth": {
+        "done": "Successfully authenticated!",
+        "fail": "NQ-SM app authentication failed !"
     }
 }

@@ -1,16 +1,14 @@
 (function() {
-	
+
+    var NQ_BASE_URI = 'http://nq.com/api/v2',
+        NQ_OAUTH = "%@/authenticate.php",
+        NQ_MDN_SEARCH = '%@/search.php?mdn=%@',
+        NQ_MDN_AUTO_COMPLETE = '%@/mdn-auto-complete.php?mdn=%@';
+
   return {
       requests: {
-          authenticateAgent: function() {
-              // An event will trigger when this request happens (L#40)
-              return {
-                  url: 'http://nq.com/api/v2/auth/agent.php',
-                  type: 'POST',
-                  data: {
-                      "ticket_id": []
-                  }
-              };
+          authenticateAgent: function(email) {
+              return this._getRequest(helpers.fmt(NQ_OAUTH, NQ_BASE_URI));
           },
           searchPage: function(mdn) {
               // An event will trigger when this request happens (L#40)
@@ -97,11 +95,56 @@
           }
       },
       appLoader: function() {
-    	  console.log(this);
-    	  //document.getElementById('abc').style.display='none';
-    	  
-		  //this.installation.dataStore.closet.clear();
-          console.log(this.currentUser());
+          var loggedInUser = this.currentUser().email();
+          if (this.authenticate(loggedInUser)) {
+              this.switchTo("search-form");
+          } else {
+              services.notify(this.I18n.t('oauth.fail'), 'error');
+          }
+      },
+
+      authenticate : function(agentEmailId) {
+
+          if ('' !== this.store('oauth_user')) {
+              var result
+                  = (this.store('oauth_user') == agentEmailId)? true : false;
+              return result;
+          } else {
+              this.ajax('authenticateAgent', this.currentUser().email())
+                  .done(function(data) {
+                      if (data.success) {
+                          this.store(
+                              {'oauth_user': this.currentUser().email()}
+                          );
+                      }
+                  }).fail(function(data) {
+                      services.notify(data.statusText, 'error');
+                  });
+          }
+      },
+
+      _getRequest: function(resource) {
+          return {
+              dataType: 'json',
+              url: resource,
+              type: 'GET',
+              headers: {
+                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('%@:%@', this.store('username'), this.settings.api_key))
+              }
+          }
+      },
+
+      _postRequest: function(data, resource) {
+          return{
+              dataType: 'json',
+              data: data,
+              processData: false,
+              type: 'POST',
+              url: resource,
+              headers: {
+                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('%@:%@', this.store('oauth_user'), this.settings.api_key))
+              }
+          }
       }
   };
 }());
