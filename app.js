@@ -1,9 +1,9 @@
 (function() {
 
-    var NQ_BASE_URI = 'http://nq.com/api/v2',
+    var NQ_BASE_URI = 'http://nq-subscribe.new.cosdevx.com',
         NQ_OAUTH = "%@/authenticate.php",
         NQ_MDN_SEARCH = '%@/search.php?mdn=%@',
-        NQ_MDN_AUTO_COMPLETE = '%@/mdn-auto-complete.php?mdn=%@';
+        NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@';
 
   return {
       requests: {
@@ -12,21 +12,23 @@
           },
           searchPage: function(mdn) {
               // An event will trigger when this request happens (L#40)
-              return {
+        	  return this._getRequest(helpers.fmt(NQ_MDN_SEARCH, NQ_BASE_URI, mdn));
+              /*return {
                   url: 'http://nq-subscribe.new.cosdevx.com/search.php?mdn='+mdn,
                   type: 'GET',
                   dataType: 'json',
                   proxy_v2: true
-              };
+              };*/
           },
           autoSearchPage: function(mdn) {
               // An event will trigger when this request happens (L#40)
-              return {
+        	  return this._getRequest(helpers.fmt(NQ_MDN_AUTO_COMPLETE, NQ_BASE_URI, mdn));
+              /*return {
                   url: 'http://nq-subscribe.new.cosdevx.com/search.php?key=auto&mdn='+mdn,
                   type: 'GET',
                   dataType: 'json',
                   proxy_v2: true
-              };
+              };*/
           }
 
       },
@@ -52,7 +54,7 @@
     	 	  //	.done(function(data) {
     	 	  	//	if ('' != data) {
     	 	  			this.$('#abc').css('display','block');
-    	 	  			var d = JSON.parse(data);
+    	 	 // 			var d = JSON.parse(data);
     	 	  			//console.log(d.length);
     	 	  			this.$('#abc').html(data);
     	 	  	//	}
@@ -96,6 +98,7 @@
       },
       appLoader: function() {
           var loggedInUser = this.currentUser().email();
+          this.store('oauth_user',loggedInUser);
           if (this.authenticate(loggedInUser)) {
               this.switchTo("search-form");
           } else {
@@ -128,6 +131,7 @@
               dataType: 'json',
               url: resource,
               type: 'GET',
+              proxy_v2 : true,
               headers: {
                   'Authorization': 'Basic ' + Base64.encode(helpers.fmt('%@:%@', this.store('username'), this.settings.api_key))
               }
@@ -140,6 +144,7 @@
               data: data,
               processData: false,
               type: 'POST',
+              proxy_v2 : true,
               url: resource,
               headers: {
                   'Authorization': 'Basic ' + Base64.encode(helpers.fmt('%@:%@', this.store('oauth_user'), this.settings.api_key))
