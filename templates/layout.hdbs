@@ -2,6 +2,10 @@
   <span class="logo"/>
   <h3>{{setting "name"}}</h3>
 </header>
+<form action="" name="mdn-search-form" method="POST">
+      <input type="text" name="mdn-search" id="mdn-search" autocomplete="off" class="in-search" />
+      <button class="btn btn-inverse search">{{t "btn_search"}}</button>
+</form>
 <section data-main/>
 <footer>
 </footer>

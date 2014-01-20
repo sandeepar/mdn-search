@@ -15,7 +15,7 @@
         		</ul>
         		<p class="space txt-color"><b>MDN Information</b></p>
         		<ul class="search-detail-box">
-        			<li><b>Subscribe Status :</b> {{status}}</li>
+        			<li><b>Subscribe Status :</b> {{subscribe_status}}</li>
         			<li><b>Client :</b> {{client}}</li>
         			<li><b>Account Number :</b> {{account_no}}</li>
         			<li><b>Old MDN :</b> {{old_mdn}}</li>	

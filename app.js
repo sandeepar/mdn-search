@@ -43,22 +43,17 @@
       	  }
       },
       autoSearch : function(key) {
-    	  this.$('#abc').css('display','none');
     	  var MDNLength = key.length;
-    	  var minKey = '4';
+    	  var minKey = '3';
     	  if (MDNLength >= minKey) {
-    		  data = [{"a":"abc","a":"sds"}];
-    		  //data = '<li>dsd</li><li>ssds</li>';
-    		  console.log(MDNLength);
-    		  //this.ajax('autoSearchPage', key)
-    	 	  //	.done(function(data) {
-    	 	  	//	if ('' != data) {
-    	 	  			this.$('#abc').css('display','block');
-    	 	 // 			var d = JSON.parse(data);
-    	 	  			//console.log(d.length);
-    	 	  			this.$('#abc').html(data);
-    	 	  	//	}
-    	 	  //});
+    		  this.ajax('autoSearchPage', key)
+    	 	  	.done(function(data) {
+    	 	  		if ('' != data) {
+    	 	  			this.$("#mdn-search").autocomplete({
+    	 	  				source : data
+    	 	  			});
+    	 	  		}
+    	 	  });
     	  }
       },
       search: function(searchData) {

@@ -1,5 +1,0 @@
-<form action="" name="mdn-search-form" method="POST">
-      <input type="text" name="mdn-search" id="mdn-search" class="in-search" />
-      <ul id="abc" style="display:none;"></ul>
-      <button class="btn btn-inverse search">{{t "btn_search"}}</button>
-</form>
