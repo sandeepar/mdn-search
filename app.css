@@ -1,0 +1,43 @@
+.in-search {
+    margin-top: 10px;
+    width: 220px;
+}
+.btn.search {
+    margin-top: 10px;
+}
+.ds-none {
+    display: block;
+}
+.main-box {
+	padding-top:15px;
+}
+.search-detail-box {
+	border : 1px solid #ccc;
+	margin-left : 0px;
+	padding : 8px;
+}
+.space {
+	padding : 5px 10px 0px;
+}
+.txt-color {
+	color : #78A300;
+}
+.active {
+	background-color : #78A300;
+	color : #fff;
+}
+.inactive {
+	background-color : #FF0000;
+	color : #fff;
+}
+.updated {
+	background-color : orange;
+	color : #fff;
+}
+.cancelled {
+	background-color : pink;
+	color : #fff;
+}
+.error {
+	color : #FF0000;
+}

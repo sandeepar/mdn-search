@@ -1,0 +1,39 @@
+<div class="main-box">
+<ul class="search-detail-box">
+    {{#if searchResult}}
+        {{#each searchResult}}
+        	{{#if id}}
+        		<p class="space txt-color"><b>Customer Information</b></p>
+        		<ul class="search-detail-box">
+        			<li><b>Name :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
+        			<li><b>Email :</b> {{email}}</li>
+        			<li><b>Address :</b> {{address_1}} {{address_2}}</li>
+        			<li><b>City :</b> {{city}}</li>
+        			<li><b>State :</b> {{state}}</li>
+        			<li><b>Zip Code :</b> {{zip_code}}</li>
+        			<li><b>Country :</b> {{country}}</li>
+        		</ul>
+        		<p class="space txt-color"><b>MDN Information</b></p>
+        		<ul class="search-detail-box">
+        			<li><b>Subscribe Status :</b> {{status}}</li>
+        			<li><b>Client :</b> {{client}}</li>
+        			<li><b>Account Number :</b> {{account_no}}</li>
+        			<li><b>Old MDN :</b> {{old_mdn}}</li>	
+        			<li><b>Insurance Activation Date :</b> {{insurance_activation_date}}</li>
+        			<li><b>Order Id :</b> {{order_id}}</li>
+        			<li><b>Activation Code :</b> {{activation_code}}</li>
+        			<li><b>ESN :</b> {{esn}}</li>
+        			<li><b>Old ESN :</b> {{old_esn}}</li>
+        			<li><b>IMEI :</b> {{imei}}</li>
+        			<li><b>Activated Date :</b> {{updated_dt_tm}}</li>
+        		</ul>
+        	{{else}}
+        		<li><span class="error">{{Message}}</span></li>
+        	{{/if}}	
+        {{/each}}
+    {{else}}   
+     	<li><span class="error">No Data available</span></li>
+    {{/if}}
+</ul>	
+</div>
+
