@@ -48,7 +48,7 @@
       },
       autoSearch : function(key) {
     	  var MDNLength = key.length;
-    	  var minKey = '3';
+    	  var minKey = '2';
     	  if (MDNLength >= minKey) {
     		  if ('' == this.store('mdnList')) {
     			  this._getAutoCompleteMDNList();
