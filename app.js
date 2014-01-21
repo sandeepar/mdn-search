@@ -91,34 +91,35 @@
               services.notify(this.I18n.t('search.empty'), 'error');
           }
       },
-      appLoader: function() {
-          var loggedInUser = this.currentUser().email();
+      appLoader: function(data) {
+          var firstLoad = data && data.firstLoad;
+          if (!firstLoad) { return; }
+
+          if ('' !== this.settings.api_key) {
+              this._onFirstLoad();
+          } else {
+              services.notify(this.I18n.t('oauth.fail'), 'error');
+          }
+          /*var loggedInUser = this.currentUser().email();
           this.store('oauth_user',loggedInUser);
           if (this.authenticate(loggedInUser)) {
               this.switchTo("search-form");
           } else {
               services.notify(this.I18n.t('oauth.fail'), 'error');
-          }
+          }*/
       },
 
-      authenticate : function(agentEmailId) {
-
-          if ('' !== this.store('oauth_user')) {
-              var result
-                  = (this.store('oauth_user') == agentEmailId)? true : false;
-              return result;
-          } else {
-              this.ajax('authenticateAgent', this.currentUser().email())
+      authenticate : function(apiKey) {
+          var response
+              = this.ajax('authenticateAgent', apiKey)
                   .done(function(data) {
                       if (data.success) {
-                          this.store(
-                              {'oauth_user': this.currentUser().email()}
-                          );
+                          return true;
                       }
                   }).fail(function(data) {
                       services.notify(data.statusText, 'error');
                   });
-          }
+          return response;
       },
 
       _getRequest: function(resource) {
@@ -128,7 +129,7 @@
               type: 'GET',
               proxy_v2 : true,
               headers: {
-                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('%@:%@', this.store('username'), this.settings.api_key))
+                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('apikey: %@', this.settings.api_key))
               }
           }
       },
@@ -142,8 +143,22 @@
               proxy_v2 : true,
               url: resource,
               headers: {
-                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('%@:%@', this.store('oauth_user'), this.settings.api_key))
+                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('apikey:%@', this.settings.api_key))
               }
+          }
+      },
+
+      _onFirstLoad: function() {
+          this.store('authenticated', false);
+          if (this.authenticate(this.settings.api_key)) {
+              this.store('authenticated', true);
+              this._getAutoCompleteMDNList();
+          }
+      },
+
+      _getAutoCompleteMDNList: function() {
+          if (this.store('authenticated')) {
+
           }
       }
   };
