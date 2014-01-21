@@ -3,7 +3,8 @@
     var NQ_BASE_URI = 'http://nq-subscribe.new.cosdevx.com',
         NQ_OAUTH = "%@/authenticate.php",
         NQ_MDN_SEARCH = '%@/search.php?mdn=%@',
-        NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@';
+        NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
+    	NQ_MDN_ALL_LIST = '%@/search.php?key=mdnList';
 
   return {
       requests: {
@@ -29,6 +30,9 @@
                   dataType: 'json',
                   proxy_v2: true
               };*/
+          },
+          getAllMDNList: function() {
+        	  return this._getRequest(helpers.fmt(NQ_MDN_ALL_LIST, NQ_BASE_URI));
           }
 
       },
@@ -46,14 +50,20 @@
     	  var MDNLength = key.length;
     	  var minKey = '3';
     	  if (MDNLength >= minKey) {
-    		  this.ajax('autoSearchPage', key)
+    		  if ('' == this.store('mdnList')) {
+    			  this._getAutoCompleteMDNList();
+    		  } 
+    		  this.$("#mdn-search").autocomplete({
+	  				source : this.store('mdnList')
+	  		  	});
+    		/*  this.ajax('autoSearchPage', key)
     	 	  	.done(function(data) {
     	 	  		if ('' != data) {
     	 	  			this.$("#mdn-search").autocomplete({
     	 	  				source : data
     	 	  			});
     	 	  		}
-    	 	  });
+    	 	  });*/
     	  }
       },
       search: function(searchData) {
@@ -149,7 +159,8 @@
       },
 
       _onFirstLoad: function() {
-          this.store('authenticated', false);
+          this.store('authenticated', true);
+          this._getAutoCompleteMDNList(); return;
           if (this.authenticate(this.settings.api_key)) {
               this.store('authenticated', true);
               this._getAutoCompleteMDNList();
@@ -158,7 +169,10 @@
 
       _getAutoCompleteMDNList: function() {
           if (this.store('authenticated')) {
-
+        	  this.ajax('getAllMDNList')
+      	  		.done(function(data){
+      	  			this.store('mdnList', data);
+      	  		});
           }
       }
   };
