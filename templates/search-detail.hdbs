@@ -3,7 +3,7 @@
     {{#if searchResult}}
         {{#each searchResult}}
         	{{#if id}}
-        		<p class="space txt-color"><b>Customer Information</b></p>
+        	    <p class="space txt-color"><b>{{t "customer-information-label.value"}}</b></p>
         		<ul class="search-detail-box">
         			<li><b>Name :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
         			<li><b>Email :</b> {{email}}</li>
@@ -13,7 +13,7 @@
         			<li><b>Zip Code :</b> {{zip_code}}</li>
         			<li><b>Country :</b> {{country}}</li>
         		</ul>
-        		<p class="space txt-color"><b>MDN Information</b></p>
+        		<p class="space txt-color"><b>{{t "mdn-information-label.value"}}</b></p>
         		<ul class="search-detail-box">
         			<li><b>Subscribe Status :</b> {{subscribe_status}}</li>
         			<li><b>Client :</b> {{client}}</li>
@@ -32,8 +32,26 @@
         	{{/if}}	
         {{/each}}
     {{else}}   
-     	<li><span class="error">No Data available</span></li>
+     	<li><span class="error">{{t "no-data-available.value"}}</span></li>
     {{/if}}
 </ul>	
 </div>
+{{#if searchResult}}
+{{#each searchResult}}
+{{#if id}}
+<div>
+<form action="" name="mdn-activate-form" method="POST">
+	<div class="pad10">
+	 <p class="pad-bot5 txt-color">{{t "resend_message.desc"}}</p>
+      <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
+     </div>
+     <div class="pad10">
+     <p class="pad-bot5 txt-color">{{t "request_message.desc"}}</p>
+      <button class="btn btn-inverse request">{{t "btn_request"}}</button>
+      </div>
+</form>
+</div>
+{{/if}}
+{{/each}}
+{{/if}}
 

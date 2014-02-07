@@ -61,5 +61,35 @@
     "oauth": {
         "done": "Successfully authenticated!",
         "fail": "NQ-SM app authentication failed !"
+    },
+    "btn_clear": {
+        "value": "Clear",
+        "title": "MDN Clear"
+    },
+    "btn_resend": {
+        "value": "Resend Activation Code",
+        "title": "resend-activation-code"
+    },
+    "btn_request": {
+        "value": "Request New Activation Code",
+        "title": "request-new-activation-code"
+    },
+    "resend_message" : {
+    	"desc" : "Resends activation code through SMS or Email"
+    },
+    "request_message" : {
+    	"desc" : "Request for new subscription"
+    },
+    "customer-information-label" : {
+    	"value" : "Customer Information"
+    },
+    "mdn-information-label" : {
+    	"value" : "MDN Information"
+    },
+    "no-data-available" : {
+    	"value" : "No Data available"
+    },
+    "authentication" : {
+    	"value" : "Not Authorized"
     }
 }

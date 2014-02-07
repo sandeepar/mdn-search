@@ -5,6 +5,7 @@
 <form action="" name="mdn-search-form" method="POST">
       <input type="text" name="mdn-search" id="mdn-search" autocomplete="off" class="in-search" />
       <button class="btn btn-inverse search">{{t "btn_search"}}</button>
+      <button class="btn btn-inverse clear">{{t "btn_clear"}}</button>
 </form>
 <section data-main/>
 <footer>

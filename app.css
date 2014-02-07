@@ -1,8 +1,11 @@
 .in-search {
     margin-top: 10px;
-    width: 220px;
+    width: 170px;
 }
 .btn.search {
+    margin-top: 10px;
+}
+.btn.clear {
     margin-top: 10px;
 }
 .ds-none {
@@ -40,4 +43,10 @@
 }
 .error {
 	color : #FF0000;
+}
+.pad10 {
+	padding : 10px;
+}
+.pad-bot5 {
+	padding-bottom : 5px;
 }

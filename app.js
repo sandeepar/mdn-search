@@ -1,38 +1,38 @@
 (function() {
 
     var NQ_BASE_URI = 'http://nq-subscribe.new.cosdevx.com',
-        NQ_OAUTH = "%@/authenticate.php",
-        NQ_MDN_SEARCH = '%@/search.php?mdn=%@',
+        NQ_OAUTH = '%@/api/auth',
+        NQ_MDN_SEARCH = '%@/api/mdn/%@',
         NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
-    	NQ_MDN_ALL_LIST = '%@/search.php?key=mdnList';
+    	NQ_MDN_ALL_LIST = '%@/api/mdn',
+    	NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true',
+    	NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true',
+    	MIN_SEARCH = '2';
 
   return {
       requests: {
-          authenticateAgent: function(email) {
+          authenticateAgent: function() {
               return this._getRequest(helpers.fmt(NQ_OAUTH, NQ_BASE_URI));
           },
+          
           searchPage: function(mdn) {
-              // An event will trigger when this request happens (L#40)
-        	  return this._getRequest(helpers.fmt(NQ_MDN_SEARCH, NQ_BASE_URI, mdn));
-              /*return {
-                  url: 'http://nq-subscribe.new.cosdevx.com/search.php?mdn='+mdn,
-                  type: 'GET',
-                  dataType: 'json',
-                  proxy_v2: true
-              };*/
+              return this._getRequest(helpers.fmt(NQ_MDN_SEARCH, NQ_BASE_URI, mdn));
           },
+          
           autoSearchPage: function(mdn) {
-              // An event will trigger when this request happens (L#40)
         	  return this._getRequest(helpers.fmt(NQ_MDN_AUTO_COMPLETE, NQ_BASE_URI, mdn));
-              /*return {
-                  url: 'http://nq-subscribe.new.cosdevx.com/search.php?key=auto&mdn='+mdn,
-                  type: 'GET',
-                  dataType: 'json',
-                  proxy_v2: true
-              };*/
           },
+          
           getAllMDNList: function() {
         	  return this._getRequest(helpers.fmt(NQ_MDN_ALL_LIST, NQ_BASE_URI));
+          },
+          
+          resendActivation : function(mdn) {
+        	  return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn));
+          },
+          
+          requestActivation : function(mdn) {
+        	  return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn));
           }
 
       },
@@ -40,67 +40,98 @@
           'app.activated':'appLoader',
           'click .search': function (event) {
               event.preventDefault();
-              this.search(this.$('#mdn-search').val());
+              if (this.store('authenticated')) {
+              	this.search(this.$('#mdn-search').val());
+          	  } else {
+          		services.notify(this.I18n.t('authentication.value'), 'error');
+          	  }
           },
       	  'keyup .in-search':function (event) {
-      		  this.autoSearch(this.$('#mdn-search').val());	  
+      		  if (this.store('authenticated')) {
+      			  this.autoSearch(this.$('#mdn-search').val());
+      		  } 
+      	  },
+      	  'click .clear': function (event) {
+      		  event.preventDefault();
+      		  this.$('#mdn-search').val('');
+      		  this.$('#mdn-search').focus();
+      		  this.switchTo('search-form');
+      	  },
+      	  'click .resend' : function (event) {
+      		event.preventDefault();
+      		if (this.store('authenticated')) {
+      			this.resend(this.$('#mdn-search').val());
+      		} else {
+      			services.notify(this.I18n.t('authentication.value'), 'error');
+      		}
+      	  },
+      	  'click .request' : function (event){
+      		event.preventDefault();
+      		this.request(this.$('#mdn-search').val());
       	  }
       },
+      
+      resend : function (key) {
+    	  this.ajax('resendActivation', key)
+    	  	  .done(function (data) {
+    	  }).fail(function(data) {
+    		  services.notify(data.statusText, 'error');
+          });
+      },
+      
+      request : function (key) {
+    	  this.ajax('requestActivation', key)
+  	  		.done(function (data) {
+  	  	  }).fail(function(data) {
+  	  		services.notify(data.statusText, 'error');
+  	  	  });
+      },
+      
       autoSearch : function(key) {
     	  var MDNLength = key.length;
-    	  var minKey = '2';
+    	  var minKey = MIN_SEARCH;
     	  if (MDNLength >= minKey) {
     		  if ('' == this.store('mdnList')) {
     			  this._getAutoCompleteMDNList();
     		  } 
     		  this.$("#mdn-search").autocomplete({
 	  				source : this.store('mdnList')
-	  		  	});
-    		/*  this.ajax('autoSearchPage', key)
-    	 	  	.done(function(data) {
-    	 	  		if ('' != data) {
-    	 	  			this.$("#mdn-search").autocomplete({
-    	 	  				source : data
-    	 	  			});
-    	 	  		}
-    	 	  });*/
+	  		  });
     	  }
       },
+      
       search: function(searchData) {
           if ('' !== searchData) {
         	  this.ajax('searchPage', searchData)
                   	.done(function(data) {
+                  		if (1 == data[0].subscribe_status) {
+                  			data[0].subscribe_status 
+                  				= helpers.safeString('<span class="active">Active</span>');
+                  		}
+                  		else if (2 == data[0].subscribe_status) {
+                  			data[0].subscribe_status 
+                  				= helpers.safeString('<span class="updated">Updated</span>');
+                  		}
+                  		else if (3 == data[0].subscribe_status) {
+                  			data[0].subscribe_status 
+                  				= helpers.safeString('<span class="cancelled">Cancelled</span>');
+                  		}
+                  		else {
+                  			data[0].subscribe_status 
+                  				= helpers.safeString('<span class="inactive">Not Activated</span>');
+                  		}
                   		this.switchTo("search-detail",
-                                 {searchResult: data}
-                             );
+                                 {searchResult: data, 
+                  			active: data[0].subscribe_status == 1 }
+                        );
                   }).fail(function(data) {
                       services.notify(data.statusText, 'error');
                   });
-        	  
-        	  Handlebars.registerHelper('status', function() {
-        		    if (this.subscribe_status == '1') {
-        		        return new Handlebars.SafeString(
-        		        		'<span class="active">Active</span>'
-        		        );
-        		    } else if (this.subscribe_status == '2') {
-        		        return new Handlebars.SafeString(
-        		        		'<span class="updated">Updated</span>'
-        		        );
-        		    } else if (this.subscribe_status == '3') {
-        		        return new Handlebars.SafeString(
-        		        		'<span class="cancelled">Cancelled</span>'
-        		        );
-        		    } else {
-        		    	return new Handlebars.SafeString(
-        		        		'<span class="inactive">Not Activated</span>'
-        		        );
-        		    }
-        		});        	  
- 
           } else {
               services.notify(this.I18n.t('search.empty'), 'error');
           }
       },
+      
       appLoader: function(data) {
           var firstLoad = data && data.firstLoad;
           if (!firstLoad) { return; }
@@ -110,26 +141,21 @@
           } else {
               services.notify(this.I18n.t('oauth.fail'), 'error');
           }
-          /*var loggedInUser = this.currentUser().email();
-          this.store('oauth_user',loggedInUser);
-          if (this.authenticate(loggedInUser)) {
-              this.switchTo("search-form");
-          } else {
-              services.notify(this.I18n.t('oauth.fail'), 'error');
-          }*/
       },
 
-      authenticate : function(apiKey) {
-          var response
-              = this.ajax('authenticateAgent', apiKey)
-                  .done(function(data) {
-                      if (data.success) {
-                          return true;
-                      }
-                  }).fail(function(data) {
-                      services.notify(data.statusText, 'error');
-                  });
-          return response;
+      authenticate : function() {
+    	  this.ajax('authenticateAgent')
+ 	  	  	.done(function(data) {
+ 	  	  		if (data.code != '401') {
+ 	  	  			this.store('authenticated', true);
+ 	  	  			this._getAutoCompleteMDNList();
+                } else {
+                	this.store('authenticated', false);
+                	services.notify(this.I18n.t('authentication.value'), 'error');
+                }
+            }).fail(function(data) {
+            	services.notify(data.statusText, 'error');
+          });
       },
 
       _getRequest: function(resource) {
@@ -139,7 +165,8 @@
               type: 'GET',
               proxy_v2 : true,
               headers: {
-                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('apikey: %@', this.settings.api_key))
+                  'Authorization' : 'Basic ' + Base64.encode(helpers.fmt('api_key:%@', this.setting('api_key'))),
+                  'API-ID' : Base64.encode(helpers.fmt('%@', this.setting('api_id')))
               }
           }
       },
@@ -153,26 +180,23 @@
               proxy_v2 : true,
               url: resource,
               headers: {
-                  'Authorization': 'Basic ' + Base64.encode(helpers.fmt('apikey:%@', this.settings.api_key))
+            	  'Authorization' : 'Basic ' + Base64.encode(helpers.fmt('api_key:%@', this.setting('api_key'))),
+                  'API-ID' : Base64.encode(helpers.fmt('%@', this.setting('api_id')))
               }
           }
       },
 
       _onFirstLoad: function() {
-          this.store('authenticated', true);
-          this._getAutoCompleteMDNList(); return;
-          if (this.authenticate(this.settings.api_key)) {
-              this.store('authenticated', true);
-              this._getAutoCompleteMDNList();
-          }
-      },
+          this.store('authenticated', false);
+          this.authenticate();
+       },
 
       _getAutoCompleteMDNList: function() {
           if (this.store('authenticated')) {
         	  this.ajax('getAllMDNList')
       	  		.done(function(data){
       	  			this.store('mdnList', data);
-      	  		});
+      	  	  });
           }
       }
   };

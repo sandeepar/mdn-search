@@ -11,8 +11,13 @@
   "frameworkVersion": "0.5",
   "parameters": [
       {
-          "name": "NQ Base Url",
-          "type": "url",
+          "name": "api_id",
+          "type": "text",
+          "required": true
+      },
+      {
+          "name": "api_key",
+          "type": "text",
           "required": true
       }
   ]
