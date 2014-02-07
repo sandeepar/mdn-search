@@ -10,12 +10,10 @@
             "title": "app name"
         }
     },
-
     "loading": {
         "value": "Welcome to this Sample App",
         "title": "loading placeholder"
     },
-
     "fetch": {
         "done": {
             "value": "Good",
@@ -26,27 +24,22 @@
             "title": "fetch failure"
         }
     },
-
     "id": {
         "value": "ID",
         "title": "user id"
     },
-
     "email": {
         "value": "Email",
         "title": "user email"
     },
-
     "name": {
         "value": "Name",
         "title": "user name"
     },
-
     "role": {
         "value": "Role",
         "title": "user role"
     },
-
     "groups": {
         "value": "Groups",
         "title": "user groups"
@@ -56,11 +49,12 @@
         "title": "MDN Search"
     },
     "search": {
-        "empty": "Please enter search text!"
+        "value": "Please enter search text!",
+        "title": "Empty search"        
     },
     "oauth": {
-        "done": "Successfully authenticated!",
-        "fail": "NQ-SM app authentication failed !"
+        "value": "NQ-SM app authentication failed !",
+        "title": "Authentication failed"
     },
     "btn_clear": {
         "value": "Clear",
@@ -75,21 +69,27 @@
         "title": "request-new-activation-code"
     },
     "resend_message" : {
-    	"desc" : "Resends activation code through SMS or Email"
+    	"value" : "Resends activation code through SMS or Email",
+        "title" : "Resend message"
     },
     "request_message" : {
-    	"desc" : "Request for new subscription"
+    	"value" : "Request for new subscription",
+        "title" : "Request message"
     },
     "customer-information-label" : {
-    	"value" : "Customer Information"
+    	"value" : "Customer Information",
+        "title" : "Customer info"
     },
     "mdn-information-label" : {
-    	"value" : "MDN Information"
+    	"value" : "MDN Information",
+        "title" : "MDN info"
     },
     "no-data-available" : {
-    	"value" : "No Data available"
+    	"value" : "No Data available",
+        "title" : "No data"
     },
     "authentication" : {
-    	"value" : "Not Authorized"
+    	"value" : "Not Authorized",
+        "title" : "Authentication"
     }
 }
