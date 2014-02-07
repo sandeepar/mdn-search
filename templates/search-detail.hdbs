@@ -1,38 +1,42 @@
 <div class="main-box">
 <ul class="search-detail-box">
     {{#if searchResult}}
-        {{#each searchResult}}
-        	{{#if id}}
-        	    <p class="space txt-color"><b>{{t "customer-information-label.value"}}</b></p>
-        		<ul class="search-detail-box">
-        			<li><b>Name :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
-        			<li><b>Email :</b> {{email}}</li>
-        			<li><b>Address :</b> {{address_1}} {{address_2}}</li>
-        			<li><b>City :</b> {{city}}</li>
-        			<li><b>State :</b> {{state}}</li>
-        			<li><b>Zip Code :</b> {{zip_code}}</li>
-        			<li><b>Country :</b> {{country}}</li>
-        		</ul>
-        		<p class="space txt-color"><b>{{t "mdn-information-label.value"}}</b></p>
-        		<ul class="search-detail-box">
-        			<li><b>Subscribe Status :</b> {{subscribe_status}}</li>
-        			<li><b>Client :</b> {{client}}</li>
-        			<li><b>Account Number :</b> {{account_no}}</li>
-        			<li><b>Old MDN :</b> {{old_mdn}}</li>	
-        			<li><b>Insurance Activation Date :</b> {{insurance_activation_date}}</li>
-        			<li><b>Order Id :</b> {{order_id}}</li>
-        			<li><b>Activation Code :</b> {{activation_code}}</li>
-        			<li><b>ESN :</b> {{esn}}</li>
-        			<li><b>Old ESN :</b> {{old_esn}}</li>
-        			<li><b>IMEI :</b> {{imei}}</li>
-        			<li><b>Activated Date :</b> {{updated_dt_tm}}</li>
-        		</ul>
-        	{{else}}
-        		<li><span class="error">{{Message}}</span></li>
-        	{{/if}}	
-        {{/each}}
+    	{{#if searchResult.Message}}
+    	    <li><span class="error">{{searchResult.Message}}</span></li>
+    	{{else}}
+        	{{#each searchResult}}
+        		{{#if id}}
+        	    	<p class="space txt-color"><b>{{t "customer-information-label"}}</b></p>
+        			<ul class="search-detail-box">
+        				<li><b>Name :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
+        				<li><b>Email :</b> {{email}}</li>
+        				<li><b>Address :</b> {{address_1}} {{address_2}}</li>
+        				<li><b>City :</b> {{city}}</li>
+        				<li><b>State :</b> {{state}}</li>
+        				<li><b>Zip Code :</b> {{zip_code}}</li>
+        				<li><b>Country :</b> {{country}}</li>
+        			</ul>
+        			<p class="space txt-color"><b>{{t "mdn-information-label"}}</b></p>
+        			<ul class="search-detail-box">
+        				<li><b>Subscribe Status :</b> {{subscribe_status}}</li>
+        				<li><b>Client :</b> {{client}}</li>
+        				<li><b>Account Number :</b> {{account_no}}</li>
+        				<li><b>Old MDN :</b> {{old_mdn}}</li>	
+        				<li><b>Insurance Activation Date :</b> {{insurance_activation_date}}</li>
+        				<li><b>Order Id :</b> {{order_id}}</li>
+        				<li><b>Activation Code :</b> {{activation_code}}</li>
+        				<li><b>ESN :</b> {{esn}}</li>
+        				<li><b>Old ESN :</b> {{old_esn}}</li>
+        				<li><b>IMEI :</b> {{imei}}</li>
+        				<li><b>Activated Date :</b> {{updated_dt_tm}}</li>
+        			</ul>
+        		{{else}}
+        			<li><span class="error">{{Message}}</span></li>
+        		{{/if}}	
+        	{{/each}}
+    	{{/if}}
     {{else}}   
-     	<li><span class="error">{{t "no-data-available.value"}}</span></li>
+     	<li><span class="error">{{t "no-data-available"}}</span></li>
     {{/if}}
 </ul>	
 </div>
@@ -42,11 +46,11 @@
 <div>
 <form action="" name="mdn-activate-form" method="POST">
 	<div class="pad10">
-	 <p class="pad-bot5 txt-color">{{t "resend_message.desc"}}</p>
+	 <p class="pad-bot5 txt-color">{{t "resend_message"}}</p>
       <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
      </div>
      <div class="pad10">
-     <p class="pad-bot5 txt-color">{{t "request_message.desc"}}</p>
+     <p class="pad-bot5 txt-color">{{t "request_message"}}</p>
       <button class="btn btn-inverse request">{{t "btn_request"}}</button>
       </div>
 </form>
