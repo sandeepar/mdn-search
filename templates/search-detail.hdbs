@@ -29,6 +29,8 @@
         				<li><b>Old ESN :</b> {{old_esn}}</li>
         				<li><b>IMEI :</b> {{imei}}</li>
         				<li><b>Activated Date :</b> {{updated_dt_tm}}</li>
+        				<li><b>Notification Type :</b> {{type}}</li>
+        				<li><b>Notification Date :</b> {{notification_date}}</li>
         			</ul>
         		{{else}}
         			<li><span class="error">{{Message}}</span></li>
