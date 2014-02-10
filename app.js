@@ -66,25 +66,36 @@
             }
         },
         resend: function(key) {
+        	this.switchTo("loader");
             this.ajax('resendActivation', key)
                     .done(function(data) {                         
                         if (200 === data.code) {
-                            services.notify(data.message);                            
+                            services.notify(data.message);
+                            this._callSubscriptionView(data.subscription[0]);
+                        } else if (200 !== data.code) {
+                        	services.notify(data.message, 'error');
+                        	this._callSubscriptionView(this.store('subscriptionDetails'));
                         }
                     }).fail(function(data) {
                         services.notify(data.statusText, 'error');
+                        this._callSubscriptionView(this.store('subscriptionDetails'));
                     });
         },
         request: function(key) {
+        	this.switchTo("loader");
             this.ajax('requestActivation', key)
                     .done(function(data) {                        
                         if (200 === data.code) {
                             services.notify(data.message);
                             this._callSubscriptionView(data.subscription);
+                        } else if (200 !== data.code) {
+                        	services.notify(data.message, 'error');
+                        	this._callSubscriptionView(this.store('subscriptionDetails'));
                         }
                     }).fail(function(data) {
-                services.notify(data.statusText, 'error');
-            });
+                    	services.notify(data.statusText, 'error');
+                    	this._callSubscriptionView(this.store('subscriptionDetails'));
+                   });
         },
         autoSearch: function(key) {
             var MDNLength = key.length;
@@ -103,12 +114,13 @@
                 this.ajax('searchPage', searchData)
                         .done(function(data) {
                             if (data.hasOwnProperty('Success')) {
-                                if (!data.Success) {                                    
-                                    this.switchTo("search-detail",
+                                if (!data.Success) {
+                                	this.switchTo("search-detail",
                                             {searchResult: data}
                                     );
                                 }
                             } else {
+                            	this.store('subscriptionDetails', data[0]);
                                 this._callSubscriptionView(data[0]);
                             }
                         }).fail(function(data) {
