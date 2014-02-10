@@ -66,36 +66,36 @@
             }
         },
         resend: function(key) {
-        	this.switchTo("loader");
+            this.switchTo("loader");
             this.ajax('resendActivation', key)
-                    .done(function(data) {                         
+                    .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
                             this._callSubscriptionView(data.subscription[0]);
                         } else if (200 !== data.code) {
-                        	services.notify(data.message, 'error');
-                        	this._callSubscriptionView(this.store('subscriptionDetails'));
+                            services.notify(data.message, 'error');
+                            this._callSubscriptionView(this.store('subscriptionDetails'));
                         }
                     }).fail(function(data) {
-                        services.notify(data.statusText, 'error');
-                        this._callSubscriptionView(this.store('subscriptionDetails'));
-                    });
+                services.notify(data.statusText, 'error');
+                this._callSubscriptionView(this.store('subscriptionDetails'));
+            });
         },
         request: function(key) {
-        	this.switchTo("loader");
+            this.switchTo("loader");
             this.ajax('requestActivation', key)
-                    .done(function(data) {                        
+                    .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
                             this._callSubscriptionView(data.subscription);
                         } else if (200 !== data.code) {
-                        	services.notify(data.message, 'error');
-                        	this._callSubscriptionView(this.store('subscriptionDetails'));
+                            services.notify(data.message, 'error');
+                            this._callSubscriptionView(this.store('subscriptionDetails'));
                         }
                     }).fail(function(data) {
-                    	services.notify(data.statusText, 'error');
-                    	this._callSubscriptionView(this.store('subscriptionDetails'));
-                   });
+                services.notify(data.statusText, 'error');
+                this._callSubscriptionView(this.store('subscriptionDetails'));
+            });
         },
         autoSearch: function(key) {
             var MDNLength = key.length;
@@ -115,12 +115,12 @@
                         .done(function(data) {
                             if (data.hasOwnProperty('Success')) {
                                 if (!data.Success) {
-                                	this.switchTo("search-detail",
+                                    this.switchTo("search-detail",
                                             {searchResult: data}
                                     );
                                 }
                             } else {
-                            	this.store('subscriptionDetails', data[0]);
+                                this.store('subscriptionDetails', data[0]);
                                 this._callSubscriptionView(data[0]);
                             }
                         }).fail(function(data) {
@@ -145,12 +145,12 @@
         authenticate: function() {
             this.ajax('authenticateAgent')
                     .done(function(data) {
-                        if (data.code !== '401') {
+                        if (200 === data.code) {                            
                             this.store('authenticated', true);
                             this._getAutoCompleteMDNList();
                         } else {
                             this.store('authenticated', false);
-                            services.notify(this.I18n.t('authentication'), 'error');
+                            services.notify(data.message, 'error');
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
