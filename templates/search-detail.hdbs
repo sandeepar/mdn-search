@@ -13,7 +13,7 @@
         				<li><b>{{t "address-label"}} :</b> {{address_1}} {{address_2}}</li>
         				<li><b>{{t "city-label"}} :</b> {{city}}</li>
         				<li><b>{{t "state-label"}} :</b> {{state}}</li>
-        				<li><b>{{t "zip-code-label"}} Code :</b> {{zip_code}}</li>
+        				<li><b>{{t "zip-code-label"}}:</b> {{zip_code}}</li>
         				<li><b>{{t "country-label"}} :</b> {{country}}</li>
         			</ul>
         			<p class="space txt-color"><b>{{t "mdn-information-label"}}</b></p>
