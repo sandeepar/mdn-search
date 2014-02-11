@@ -8,29 +8,30 @@
         		{{#if id}}
         	    	<p class="space txt-color"><b>{{t "customer-information-label"}}</b></p>
         			<ul class="search-detail-box">
-        				<li><b>Name :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
-        				<li><b>Email :</b> {{email}}</li>
-        				<li><b>Address :</b> {{address_1}} {{address_2}}</li>
-        				<li><b>City :</b> {{city}}</li>
-        				<li><b>State :</b> {{state}}</li>
-        				<li><b>Zip Code :</b> {{zip_code}}</li>
-        				<li><b>Country :</b> {{country}}</li>
+        				<li><b>{{t "name-label"}} :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
+        				<li><b>{{t "email-label"}} :</b> {{email}}</li>
+        				<li><b>{{t "address-label"}} :</b> {{address_1}} {{address_2}}</li>
+        				<li><b>{{t "city-label"}} :</b> {{city}}</li>
+        				<li><b>{{t "state-label"}} :</b> {{state}}</li>
+        				<li><b>{{t "zip-code-label"}} Code :</b> {{zip_code}}</li>
+        				<li><b>{{t "country-label"}} :</b> {{country}}</li>
         			</ul>
         			<p class="space txt-color"><b>{{t "mdn-information-label"}}</b></p>
         			<ul class="search-detail-box">
-        				<li><b>Subscribe Status :</b> {{subscribe_status}}</li>
-        				<li><b>Client :</b> {{client}}</li>
-        				<li><b>Account Number :</b> {{account_no}}</li>
-        				<li><b>Old MDN :</b> {{old_mdn}}</li>	
-        				<li><b>Insurance Activation Date :</b> {{insurance_activation_date}}</li>
-        				<li><b>Order Id :</b> {{order_id}}</li>
-        				<li><b>Activation Code :</b> {{activation_code}}</li>
-        				<li><b>ESN :</b> {{esn}}</li>
-        				<li><b>Old ESN :</b> {{old_esn}}</li>
-        				<li><b>IMEI :</b> {{imei}}</li>
-        				<li><b>Activated Date :</b> {{updated_dt_tm}}</li>
-        				<li><b>Notification Type :</b> {{type}}</li>
-        				<li><b>Notification Date :</b> {{notification_date}}</li>
+        				<li><b>{{t "subscribe-status-label"}} :</b> {{subscribe_status}}</li>
+        				<li><b>{{t "client-label"}} :</b> {{client}}</li>
+        				<li><b>{{t "account-number-label"}} :</b> {{account_no}}</li>
+        				<li><b>{{t "mdn-label"}} :</b> {{mdn}}</li>
+        				<li><b>{{t "old-mdn-label"}} :</b> {{old_mdn}}</li>	
+        				<li><b>{{t "insurance-activation-date-label"}} :</b> {{insurance_activation_date}}</li>
+        				<li><b>{{t "order-id-label"}} :</b> {{order_id}}</li>
+        				<li><b>{{t "activation-code-label"}} :</b> {{activation_code}}</li>
+        				<li><b>{{t "esn-label"}} :</b> {{esn}}</li>
+        				<li><b>{{t "old-esn-label"}} :</b> {{old_esn}}</li>
+        				<li><b>{{t "imei-label"}} :</b> {{imei}}</li>
+        				<li><b>{{t "activated-label"}} :</b> {{updated_dt_tm}}</li>
+        				<li><b>{{t "notification-type-label"}} :</b> {{type}}</li>
+        				<li><b>{{t "notification-date-label"}} :</b> {{notification_date}}</li>
         			</ul>
         		{{else}}
         			<li><span class="error">{{Message}}</span></li>

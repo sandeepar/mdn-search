@@ -91,5 +91,89 @@
     "authentication" : {
     	"value" : "Not Authorized",
         "title" : "Authentication"
+    },
+    "name-label" : {
+    	"value" : "Name",
+        "title" : "Name label"
+    },
+    "email-label" : {
+    	"value" : "Email",
+        "title" : "Email label"
+    },
+    "address-label" : {
+    	"value" : "Address",
+        "title" : "Address label"
+    },
+    "city-label" : {
+    	"value" : "City",
+        "title" : "City label"
+    },
+    "state-label" : {
+    	"value" : "State",
+        "title" : "State label"
+    },
+    "zip-code-label" : {
+    	"value" : "Zip Code",
+        "title" : "Zip Code label"
+    },
+    "country-label" : {
+    	"value" : "Country",
+        "title" : "Country label"
+    },
+    "subscribe-status-label" : {
+    	"value" : "Subscribe Status",
+        "title" : "Subscribe Status label"
+    },
+    "client-label" : {
+    	"value" : "Client",
+        "title" : "Client label"
+    },
+    "account-number-label" : {
+    	"value" : "Account Number",
+        "title" : "Account Number label"
+    },
+    "mdn-label" : {
+    	"value" : "MDN",
+        "title" : "New MDN label"
+    },
+    "old-mdn-label" : {
+    	"value" : "Old MDN",
+        "title" : "Old MDN label"
+    },
+    "insurance-activation-date-label" : {
+    	"value" : "Insurance Activation Date",
+        "title" : "Insurance Activation Date label"
+    },
+    "order-id-label" : {
+    	"value" : "Order Id",
+        "title" : "Order Id label"
+    },
+    "activation-code-label" : {
+    	"value" : "Activation Code",
+        "title" : "Activation Code label"
+    },
+    "esn-label" : {
+    	"value" : "ESN",
+        "title" : "ESN label"
+    },
+    "old-esn-label" : {
+    	"value" : "Old ESN",
+        "title" : "Old ESN label"
+    },
+    "imei-label" : {
+    	"value" : "IMEI",
+        "title" : "IMEI label"
+    },
+    "activated-label" : {
+    	"value" : "Activated Date",
+        "title" : "Activated Date label"
+    },
+    "notification-type-label" : {
+    	"value" : "Notification Type",
+        "title" : "Notification Type label"
+    },
+    "notification-date-label" : {
+    	"value" : "Notification Date",
+        "title" : "Notification Date label"
     }
 }
