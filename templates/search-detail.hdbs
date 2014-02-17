@@ -48,10 +48,12 @@
 {{#if id}}
 <div>
 <form action="" name="mdn-activate-form" method="POST">
-	<div class="pad10">
+    {{#if sendActivation}} 
+    <div class="pad10">
 	 <p class="pad-bot5 txt-color">{{t "resend_message"}}</p>
       <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
      </div>
+    {{/if}}
      <div class="pad10">
      <p class="pad-bot5 txt-color">{{t "request_message"}}</p>
       <button class="btn btn-inverse request">{{t "btn_request"}}</button>

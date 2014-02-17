@@ -87,7 +87,7 @@
                     .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
-                            this._callSubscriptionView(data.subscription);
+                            this._callSubscriptionView(data.subscription[0]);
                         } else if (200 !== data.code) {
                             services.notify(data.message, 'error');
                             this._callSubscriptionView(this.store('subscriptionDetails'));
@@ -194,17 +194,18 @@
                         });
             }
         },
-        _callSubscriptionView: function (subscription) {            
+        _callSubscriptionView: function (subscription) {
             if ('1' === subscription.subscribe_status) {                
                 subscription.subscribe_status = helpers.safeString('<span class="active">Active</span>');
-            } else if (2 === subscription.subscribe_status) {
+                subscription.sendActivation = 1;
+            } else if ('2' === subscription.subscribe_status) {
                 subscription.subscribe_status = helpers.safeString('<span class="updated">Updated</span>');
-            } else if (3 === subscription.subscribe_status) {
+            } else if ('3' === subscription.subscribe_status) {
                 subscription.subscribe_status = helpers.safeString('<span class="cancelled">Cancelled</span>');
             } else {
                 subscription.subscribe_status = helpers.safeString('<span class="inactive">Not Activated</span>');
             }
-            
+            console.log(subscription);
             this.switchTo("search-detail", {searchResult: [subscription]});    
         }
     };
