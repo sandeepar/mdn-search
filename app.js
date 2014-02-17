@@ -205,7 +205,6 @@
             } else {
                 subscription.subscribe_status = helpers.safeString('<span class="inactive">Not Activated</span>');
             }
-            console.log(subscription);
             this.switchTo("search-detail", {searchResult: [subscription]});    
         }
     };
