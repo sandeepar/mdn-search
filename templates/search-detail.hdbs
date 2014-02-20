@@ -6,7 +6,7 @@
     	{{else}}
         	{{#each searchResult}}
         		{{#if id}}
-        	    	<p class="space txt-color"><b>{{t "customer-information-label"}}</b></p>
+                                <p class="space txt-color"><b>{{t "customer-information-label"}}</b></p>
         			<ul class="search-detail-box">
         				<li><b>{{t "name-label"}} :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
         				<li><b>{{t "email-label"}} :</b> {{email}}</li>
@@ -29,12 +29,18 @@
         				<li><b>{{t "esn-label"}} :</b> {{esn}}</li>
         				<li><b>{{t "old-esn-label"}} :</b> {{old_esn}}</li>
         				<li><b>{{t "imei-label"}} :</b> {{imei}}</li>
-        				<li><b>{{t "activated-label"}} :</b> {{updated_dt_tm}}</li>
+        				<li><b>{{t "activated-label"}} :</b> {{activated_date}}</li>
         				<li><b>{{t "notification-type-label"}} :</b> {{type}}</li>
         				<li><b>{{t "notification-date-label"}} :</b> {{notification_date}}</li>
         			</ul>
-        		{{else}}
-        			<li><span class="error">{{Message}}</span></li>
+                        {{else}}
+                            <p class="pad-bot10 p-color">{{t "vendor_message"}}</p>
+                            {{#each this}}
+                              <li class="vendor-box">
+                                <a class="vendor" value="{{vendor_id}}" >{{name}}</a>
+                              </li>
+                            {{/each}}
+                            <li><span class="error">{{Message}}</span></li>
         		{{/if}}	
         	{{/each}}
     	{{/if}}
@@ -43,6 +49,7 @@
     {{/if}}
 </ul>	
 </div>
+
 {{#if searchResult}}
 {{#each searchResult}}
 {{#if id}}

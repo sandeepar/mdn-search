@@ -175,5 +175,9 @@
     "notification-date-label" : {
     	"value" : "Notification Date",
         "title" : "Notification Date label"
+    },
+    "vendor_message" : {
+    	"value" : "Please select your vendor to view the MDN information",
+        "title" : "Vendor message"
     }
 }

@@ -2,11 +2,11 @@
 
     var NQ_BASE_URI = 'http://nq-subscribe.new.cosdevx.com',
             NQ_OAUTH = '%@/api/auth',
-            NQ_MDN_SEARCH = '%@/api/mdn/%@',
+            NQ_MDN_SEARCH = '%@/api/mdn/%@?vendor_id=%@',
             NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
             NQ_MDN_ALL_LIST = '%@/api/mdn',
-            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true',
-            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true',
+            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&vendor_id=%@',
+            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&vendor_id=%@',
             MIN_SEARCH = '2';
 
     return {
@@ -14,8 +14,8 @@
             authenticateAgent: function() {
                 return this._getRequest(helpers.fmt(NQ_OAUTH, NQ_BASE_URI));
             },
-            searchPage: function(mdn) {
-                return this._getRequest(helpers.fmt(NQ_MDN_SEARCH, NQ_BASE_URI, mdn));
+            searchPage: function(mdn, vendorId) {
+                return this._getRequest(helpers.fmt(NQ_MDN_SEARCH, NQ_BASE_URI, mdn, vendorId));
             },
             autoSearchPage: function(mdn) {
                 return this._getRequest(helpers.fmt(NQ_MDN_AUTO_COMPLETE, NQ_BASE_URI, mdn));
@@ -23,20 +23,19 @@
             getAllMDNList: function() {
                 return this._getRequest(helpers.fmt(NQ_MDN_ALL_LIST, NQ_BASE_URI));
             },
-            resendActivation: function(mdn) {
-                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn));
+            resendActivation: function(mdn, vendorId) {
+                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn, vendorId));
             },
-            requestActivation: function(mdn) {
-                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn));
+            requestActivation: function(mdn, vendorId) {
+                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn, vendorId));
             }
-
         },
         events: {
             'app.activated': 'appLoader',
             'click .search': function(event) {
                 event.preventDefault();
                 if (this.store('authenticated')) {
-                    this.search(this.$('#mdn-search').val());
+                    this.search(this.$('#mdn-search').val(), 0);
                 } else {
                     services.notify(this.I18n.t('authentication'), 'error');
                 }
@@ -63,38 +62,49 @@
             'click .request': function(event) {
                 event.preventDefault();
                 this.request(this.$('#mdn-search').val());
+            },
+            'click .vendor' : function(event) {
+                event.preventDefault();
+                var vendor_id = event.currentTarget.attributes[0].value;
+                if (vendor_id === 'vendor') {
+                    vendor_id = event.currentTarget.attributes[1].value;
+                }
+                this.search(this.$('#mdn-search').val(), vendor_id);
             }
         },
+        
         resend: function(key) {
             this.switchTo("loader");
-            this.ajax('resendActivation', key)
+            var subscriptionData = this.store(key);
+            this.ajax('resendActivation', key, subscriptionData.vendor_id)
                     .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
                             this._callSubscriptionView(data.subscription[0]);
                         } else if (200 !== data.code) {
                             services.notify(data.message, 'error');
-                            this._callSubscriptionView(this.store('subscriptionDetails'));
+                            this._callSubscriptionView(this.store(key));
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
-                this._callSubscriptionView(this.store('subscriptionDetails'));
+                this._callSubscriptionView(this.store(key));
             });
         },
         request: function(key) {
             this.switchTo("loader");
-            this.ajax('requestActivation', key)
+            var subscriptionData = this.store(key);
+            this.ajax('requestActivation', key, subscriptionData.vendor_id)
                     .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
                             this._callSubscriptionView(data.subscription[0]);
                         } else if (200 !== data.code) {
                             services.notify(data.message, 'error');
-                            this._callSubscriptionView(this.store('subscriptionDetails'));
+                            this._callSubscriptionView(this.store(key));
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
-                this._callSubscriptionView(this.store('subscriptionDetails'));
+                this._callSubscriptionView(this.store(key));
             });
         },
         autoSearch: function(key) {
@@ -109,9 +119,9 @@
                 });
             }
         },
-        search: function(searchData) {
+        search: function(searchData, vendorId) {
             if ('' !== searchData) {
-                this.ajax('searchPage', searchData)
+                this.ajax('searchPage', searchData, vendorId)
                         .done(function(data) {
                             if (data.hasOwnProperty('Success')) {
                                 if (!data.Success) {
@@ -120,8 +130,12 @@
                                     );
                                 }
                             } else {
-                                this.store('subscriptionDetails', data[0]);
-                                this._callSubscriptionView(data[0]);
+                                if (data.length > 1) {
+                                    this._callSubscriptionView(data);
+                                } else {
+                                    this.store(searchData, data[0]);
+                                    this._callSubscriptionView(data[0]);
+                                }
                             }
                         }).fail(function(data) {
                     services.notify(data.statusText, 'error');
@@ -199,11 +213,11 @@
                 subscription.subscribe_status = helpers.safeString('<span class="active">Active</span>');
                 subscription.sendActivation = 1;
             } else if ('2' === subscription.subscribe_status) {
-                subscription.subscribe_status = helpers.safeString('<span class="updated">Updated</span>');
+                subscription.subscribe_status = helpers.safeString('<span class="updated">Pending</span>');
             } else if ('3' === subscription.subscribe_status) {
                 subscription.subscribe_status = helpers.safeString('<span class="cancelled">Cancelled</span>');
             } else {
-                subscription.subscribe_status = helpers.safeString('<span class="inactive">Not Activated</span>');
+                subscription.subscribe_status = helpers.safeString('<span class="updated">Pending</span>');
             }
             this.switchTo("search-detail", {searchResult: [subscription]});    
         }

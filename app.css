@@ -50,3 +50,17 @@
 .pad-bot5 {
 	padding-bottom : 5px;
 }
+.pad-bot10 {
+	padding-bottom : 10px;
+}
+.p-color {
+    color : #043168;
+}
+.vendor-box {
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+.vendor-box a {
+    display:block;
+}
