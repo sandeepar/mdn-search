@@ -5,8 +5,10 @@
             NQ_MDN_SEARCH = '%@/api/mdn/%@?vendor_id=%@',
             NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
             NQ_MDN_ALL_LIST = '%@/api/mdn',
-            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&vendor_id=%@',
-            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&vendor_id=%@',
+            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&device_detail_id=%@',
+            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&device_detail_id=%@',
+            NQ_MDN_CHANGE_REQUEST = '%@/api/retail/%@',
+            NQ_SERIAL_CHANGE_REQUEST = '%@/api/retail/%@',
             MIN_SEARCH = '2';
 
     return {
@@ -23,15 +25,27 @@
             getAllMDNList: function() {
                 return this._getRequest(helpers.fmt(NQ_MDN_ALL_LIST, NQ_BASE_URI));
             },
-            resendActivation: function(mdn, vendorId) {
-                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn, vendorId));
+            resendActivation: function(mdn, id) {
+                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn, id));
             },
-            requestActivation: function(mdn, vendorId) {
-                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn, vendorId));
+            requestActivation: function(mdn, id) {
+                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn, id));
+            },
+            requestMdnChange: function(currentSubscription, mdn) {
+                return this._postRequest(
+                    currentSubscription, 
+                    helpers.fmt(NQ_MDN_CHANGE_REQUEST, NQ_BASE_URI, mdn)
+                );
+            },
+            requestMobileSerialChange: function(currentSubscription, mdn) {
+                return this._postRequest(
+                    currentSubscription, 
+                    helpers.fmt(NQ_SERIAL_CHANGE_REQUEST, NQ_BASE_URI, mdn)
+                );
             }
         },
         events: {
-            'app.activated': 'appLoader',
+            'app.created': 'appLoader',
             'click .search': function(event) {
                 event.preventDefault();
                 if (this.store('authenticated')) {
@@ -41,7 +55,7 @@
                 }
             },
             'keyup .in-search': function(event) {
-                if (this.store('authenticated')) {
+                if (this.store('authenticated')) {                    
                     this.autoSearch(this.$('#mdn-search').val());
                 }
             },
@@ -63,20 +77,33 @@
                 event.preventDefault();
                 this.request(this.$('#mdn-search').val());
             },
-            'click .vendor' : function(event) {
+            'click .vendor': function(event) {
                 event.preventDefault();
-                var vendor_id = event.currentTarget.attributes[0].value;
-                if (vendor_id === 'vendor') {
-                    vendor_id = event.currentTarget.attributes[1].value;
-                }
-                this.search(this.$('#mdn-search').val(), vendor_id);
+                var id = event.currentTarget.attributes[1].value;
+                var subscription = _.find(this.store('subscriptions'), 
+                    function(subscription) {
+                        return subscription.id === id;
+                    }
+                );
+                this.store('current-subscription', subscription);
+                this._callSubscriptionView(subscription);
+            },
+            'click .change_mdn' : function(event) {
+                event.preventDefault();
+                this.changeMobileDeviceNumber(
+                    this.store('current-subscription'), this.$("#mdn-search").val());
+            },
+            'click .change_serial' : function(event) {
+                event.preventDefault();
+                this.changeMobileSerialNumber(
+                    this.store('current-subscription'), this.$("#mdn-search").val());
             }
         },
         
         resend: function(key) {
             this.switchTo("loader");
-            var subscriptionData = this.store(key);
-            this.ajax('resendActivation', key, subscriptionData.vendor_id)
+            var subscription = this.store('current-subscription');
+            this.ajax('resendActivation', key, subscription.id)
                     .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
@@ -109,11 +136,11 @@
         },
         autoSearch: function(key) {
             var MDNLength = key.length;
-            var minKey = MIN_SEARCH;
+            var minKey = MIN_SEARCH;            
             if (MDNLength >= minKey) {
                 if ('' === this.store('mdnList')) {
                     this._getAutoCompleteMDNList();
-                }
+                }                
                 this.$("#mdn-search").autocomplete({
                     source: this.store('mdnList')
                 });
@@ -122,20 +149,27 @@
         search: function(searchData, vendorId) {
             if ('' !== searchData) {
                 this.ajax('searchPage', searchData, vendorId)
-                        .done(function(data) {
-                            if (data.hasOwnProperty('Success')) {
-                                if (!data.Success) {
-                                    this.switchTo("search-detail",
-                                            {searchResult: data}
-                                    );
-                                }
-                            } else {
+                        .done(function(data) {                                                        
+                            if (!data.hasOwnProperty('code')) {                                
                                 if (data.length > 1) {
-                                    this._callSubscriptionView(data);
-                                } else {
-                                    this.store(searchData, data[0]);
+                                    this.store('subscriptions', data);
+                                    
+                                    var partners = [];
+                                    _.each(data, function(subscription) {
+                                        var partner = {};
+                                        partner['id'] = subscription.id;
+                                        partner['name'] = subscription.carrier;                                        
+                                        partners.push(partner);
+                                    });                                    
+                                    this.store('partner-list', partners);
+                                    this._callSubscriptionView(partners);
+                                } else {                                    
+                                    this.store('current-subscription', data[0]);                                    
                                     this._callSubscriptionView(data[0]);
                                 }
+                            } else {                                
+                                this.store('current-subscription', data[0]);
+                                this._callSubscriptionView(data[0]);
                             }
                         }).fail(function(data) {
                     services.notify(data.statusText, 'error');
@@ -145,7 +179,7 @@
             }
         },
         appLoader: function(data) {
-            var firstLoad = data && data.firstLoad;
+            var firstLoad = data && data.firstLoad;            
             if (!firstLoad) {
                 return;
             }
@@ -165,6 +199,28 @@
                         } else {
                             this.store('authenticated', false);
                             services.notify(data.message, 'error');
+                        }
+                    }).fail(function(data) {
+                services.notify(data.statusText, 'error');
+            });
+        },
+        changeMobileDeviceNumber : function () {
+            this.ajax('requestMdnChange')
+                    .done(function(data) {
+                        if (200 === data.code) {                            
+                            this.store('current-subscription', data[0]);
+                            this._callSubscriptionView(data[0]);
+                        }
+                    }).fail(function(data) {
+                services.notify(data.statusText, 'error');
+            });
+        },
+        changeMobileSerialNumber : function () {
+            this.ajax('requestMobileSerialChange')
+                    .done(function(data) {
+                        if (200 === data.code) {                            
+                            this.store('current-subscription', data[0]);
+                            this._callSubscriptionView(data[0]);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
@@ -209,15 +265,13 @@
             }
         },
         _callSubscriptionView: function (subscription) {
-            if ('1' === subscription.subscribe_status) {                
-                subscription.subscribe_status = helpers.safeString('<span class="active">Active</span>');
-                subscription.sendActivation = 1;
-            } else if ('2' === subscription.subscribe_status) {
-                subscription.subscribe_status = helpers.safeString('<span class="updated">Pending</span>');
-            } else if ('3' === subscription.subscribe_status) {
-                subscription.subscribe_status = helpers.safeString('<span class="cancelled">Cancelled</span>');
+            
+            subscription.isRetail = (null === subscription.channel_type)? 
+                0 : ('Insurance' === subscription.channel_type)? 0 : 1;     
+            if ('EXPIRED' !== subscription.status || 'CANCELLED' !== subscription.status) {                                
+                subscription.resendActivation = 1;
             } else {
-                subscription.subscribe_status = helpers.safeString('<span class="updated">Pending</span>');
+                subscription.resendActivation = 0;
             }
             this.switchTo("search-detail", {searchResult: [subscription]});    
         }
