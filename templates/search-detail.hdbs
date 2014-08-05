@@ -10,39 +10,42 @@
         			<ul class="search-detail-box">
         				<li><b>{{t "name-label"}} :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
         				<li><b>{{t "email-label"}} :</b> {{email}}</li>
-        				<li><b>{{t "address-label"}} :</b> {{address_1}} {{address_2}}</li>
-        				<li><b>{{t "city-label"}} :</b> {{city}}</li>
-        				<li><b>{{t "state-label"}} :</b> {{state}}</li>
-        				<li><b>{{t "zip-code-label"}}:</b> {{zip_code}}</li>
-        				<li><b>{{t "country-label"}} :</b> {{country}}</li>
+        				<li><b>{{t "mdn-label"}} :</b> {{mdn}}</li>
+        				<li><b>{{t "device-serial-label"}} :</b> {{serial_number}}</li>
+        				<li><b>{{t "device-make-label"}} :</b> {{make}} {{model}}</li>        				
         			</ul>
         			<p class="space txt-color"><b>{{t "mdn-information-label"}}</b></p>
         			<ul class="search-detail-box">
-        				<li><b>{{t "subscribe-status-label"}} :</b> {{subscribe_status}}</li>
-        				<li><b>{{t "client-label"}} :</b> {{client}}</li>
-        				<li><b>{{t "account-number-label"}} :</b> {{account_no}}</li>
-        				<li><b>{{t "mdn-label"}} :</b> {{mdn}}</li>
-        				<li><b>{{t "old-mdn-label"}} :</b> {{old_mdn}}</li>	
-        				<li><b>{{t "insurance-activation-date-label"}} :</b> {{insurance_activation_date}}</li>
-        				<li><b>{{t "order-id-label"}} :</b> {{order_id}}</li>
         				<li><b>{{t "activation-code-label"}} :</b> {{activation_code}}</li>
-        				<li><b>{{t "esn-label"}} :</b> {{esn}}</li>
-        				<li><b>{{t "old-esn-label"}} :</b> {{old_esn}}</li>
-        				<li><b>{{t "imei-label"}} :</b> {{imei}}</li>
-        				<li><b>{{t "activated-label"}} :</b> {{activated_date}}</li>
-        				<li><b>{{t "notification-type-label"}} :</b> {{type}}</li>
-        				<li><b>{{t "notification-date-label"}} :</b> {{notification_date}}</li>
+        				<li><b>{{t "status-label"}} :</b> {{status}}</li>
+        				<li><b>{{t "sale-date-label"}} :</b> {{effective_dt_tm}}</li>
+        				<li><b>{{t "activation-date-label"}} :</b> {{create_dt_tm}}</li>
+        				<li><b>{{t "expiration-date-label"}} :</b> {{expire_dt_tm}}</li>	
+        				<li><b>{{t "partner-label"}} :</b> {{carrier}}</li>
+        				<li><b>{{t "channel-type-label"}} :</b> {{channel_type}}</li>        				
         			</ul>
+                                {{#if isRetail}}
+                                    <ul class="search-detail-box">
+        				<li><b>{{t "change-mdn-label"}} :</b> 
+                                            <input type="text" name="mdn-change" id="mdn-change"/>                                        
+                                            <button class="btn btn-inverse change_mdn">{{t "btn_save"}}</button>
+                                        </li>
+        				<li><b>{{t "change-serial-label"}} :</b> 
+                                            <input type="text" name="serial-change" id="serial-change"/>                                        
+                                            <button class="btn btn-inverse change_serial">{{t "btn_save"}}</button>
+                                        </li>        				     				
+                                    </ul>
+                                {{/if}}
                         {{else}}
                             <p class="pad-bot10 p-color">{{t "vendor_message"}}</p>
                             {{#each this}}
                               <li class="vendor-box">
-                                <a class="vendor" value="{{vendor_id}}" >{{name}}</a>
+                                <a class="vendor" value="{{id}}" >{{name}}</a>
                               </li>
                             {{/each}}
                             <li><span class="error">{{Message}}</span></li>
         		{{/if}}	
-        	{{/each}}
+        	{{/each}}                
     	{{/if}}
     {{else}}   
      	<li><span class="error">{{t "no-data-available"}}</span></li>
@@ -55,7 +58,7 @@
 {{#if id}}
 <div>
 <form action="" name="mdn-activate-form" method="POST">
-    {{#if sendActivation}} 
+    {{#if resendActivation}} 
     <div class="pad10">
 	 <p class="pad-bot5 txt-color">{{t "resend_message"}}</p>
       <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
