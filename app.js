@@ -12,6 +12,9 @@
             MIN_SEARCH = '2';
 
     return {
+        resources: {            
+            MDN_PATTERN: /\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/
+        },
         requests: {
             authenticateAgent: function() {
                 return this._getRequest(helpers.fmt(NQ_OAUTH, NQ_BASE_URI));
@@ -31,21 +34,21 @@
             requestActivation: function(mdn, id) {
                 return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn, id));
             },
-            requestMdnChange: function(currentSubscription, mdn) {
+            requestMdnChange: function(params, id) {
                 return this._postRequest(
-                    currentSubscription, 
-                    helpers.fmt(NQ_MDN_CHANGE_REQUEST, NQ_BASE_URI, mdn)
+                    params, 
+                    helpers.fmt(NQ_MDN_CHANGE_REQUEST, NQ_BASE_URI, id)
                 );
             },
-            requestMobileSerialChange: function(currentSubscription, mdn) {
+            requestMobileSerialChange: function(params, id) {
                 return this._postRequest(
-                    currentSubscription, 
-                    helpers.fmt(NQ_SERIAL_CHANGE_REQUEST, NQ_BASE_URI, mdn)
+                    params, 
+                    helpers.fmt(NQ_SERIAL_CHANGE_REQUEST, NQ_BASE_URI, id)
                 );
             }
         },
         events: {
-            'app.created': 'appLoader',
+            'app.activated': 'appLoader',
             'click .search': function(event) {
                 event.preventDefault();
                 if (this.store('authenticated')) {
@@ -90,13 +93,29 @@
             },
             'click .change_mdn' : function(event) {
                 event.preventDefault();
-                this.changeMobileDeviceNumber(
-                    this.store('current-subscription'), this.$("#mdn-search").val());
+                var newMdn = this.$("#mdn-change").val();                
+                if (this.resources.MDN_PATTERN.test(newMdn)) {
+                    var subscription = this.store('current-subscription');                
+                    var params = {
+                        new_mdn:this.$("#mdn-change").val(),
+                        device_activation_id: subscription.device_activation_id
+                    };            
+                    this.changeMobileDeviceNumber(params, subscription.id);
+                } else {
+                    services.notify(this.I18n.t('mdn-required'), 'error');
+                }
             },
             'click .change_serial' : function(event) {
                 event.preventDefault();
-                this.changeMobileSerialNumber(
-                    this.store('current-subscription'), this.$("#mdn-search").val());
+                if ('' !== this.$("#serial-change").val()) {
+                    var subscription = this.store('current-subscription');                
+                    var params = {
+                        new_serial_number:this.$("#serial-change").val()                    
+                    };
+                    this.changeMobileSerialNumber(params, subscription.id);
+                } else {
+                    services.notify(this.I18n.t('serial-required'), 'error');
+                }
             }
         },
         
@@ -110,28 +129,28 @@
                             this._callSubscriptionView(data.subscription[0]);
                         } else if (200 !== data.code) {
                             services.notify(data.message, 'error');
-                            this._callSubscriptionView(this.store(key));
+                            this._callSubscriptionView(subscription);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
-                this._callSubscriptionView(this.store(key));
+                this._callSubscriptionView(subscription);
             });
         },
         request: function(key) {
             this.switchTo("loader");
-            var subscriptionData = this.store(key);
-            this.ajax('requestActivation', key, subscriptionData.vendor_id)
+            var subscription = this.store('current-subscription');
+            this.ajax('requestActivation', key, subscription.id)
                     .done(function(data) {
                         if (200 === data.code) {
                             services.notify(data.message);
                             this._callSubscriptionView(data.subscription[0]);
                         } else if (200 !== data.code) {
                             services.notify(data.message, 'error');
-                            this._callSubscriptionView(this.store(key));
+                            this._callSubscriptionView(subscription);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
-                this._callSubscriptionView(this.store(key));
+                this._callSubscriptionView(subscription);
             });
         },
         autoSearch: function(key) {
@@ -157,19 +176,17 @@
                                     var partners = [];
                                     _.each(data, function(subscription) {
                                         var partner = {};
-                                        partner['id'] = subscription.id;
-                                        partner['name'] = subscription.carrier;                                        
+                                        partner.id = subscription.id;
+                                        partner.name = subscription.carrier;                                        
                                         partners.push(partner);
                                     });                                    
                                     this.store('partner-list', partners);
                                     this._callSubscriptionView(partners);
-                                } else {                                    
-                                    this.store('current-subscription', data[0]);                                    
+                                } else {                                                                                                          
                                     this._callSubscriptionView(data[0]);
                                 }
-                            } else {                                
-                                this.store('current-subscription', data[0]);
-                                this._callSubscriptionView(data[0]);
+                            } else {                                                                
+                                this.switchTo("search-detail", {searchResult: data});
                             }
                         }).fail(function(data) {
                     services.notify(data.statusText, 'error');
@@ -204,23 +221,27 @@
                 services.notify(data.statusText, 'error');
             });
         },
-        changeMobileDeviceNumber : function () {
-            this.ajax('requestMdnChange')
+        changeMobileDeviceNumber: function (params, id) {
+            this.switchTo("loader");
+            var postData = JSON.stringify(params);            
+            this.ajax('requestMdnChange', postData, id)
                     .done(function(data) {
                         if (200 === data.code) {                            
-                            this.store('current-subscription', data[0]);
-                            this._callSubscriptionView(data[0]);
+                            services.notify(data.message);
+                            this._callSubscriptionView(data.subscription[0]);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
             });
         },
-        changeMobileSerialNumber : function () {
-            this.ajax('requestMobileSerialChange')
+        changeMobileSerialNumber : function (params, id) {
+            this.switchTo("loader");
+            var postData = JSON.stringify(params);
+            this.ajax('requestMobileSerialChange', postData, id)
                     .done(function(data) {
                         if (200 === data.code) {                            
-                            this.store('current-subscription', data[0]);
-                            this._callSubscriptionView(data[0]);
+                            services.notify(data.message);
+                            this._callSubscriptionView(data.subscription[0]);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
@@ -264,16 +285,18 @@
                         });
             }
         },
-        _callSubscriptionView: function (subscription) {
-            
-            subscription.isRetail = (null === subscription.channel_type)? 
-                0 : ('Insurance' === subscription.channel_type)? 0 : 1;     
-            if ('EXPIRED' !== subscription.status || 'CANCELLED' !== subscription.status) {                                
-                subscription.resendActivation = 1;
-            } else {
-                subscription.resendActivation = 0;
+        _callSubscriptionView: function (subscription) {            
+            if (subscription.hasOwnProperty('id')) {
+                this.store('current-subscription', subscription);
+                subscription.isRetail = (null === subscription.channel_type)? 
+                    0 : ('Insurance' === subscription.channel_type)? 0 : 1;     
+                if ('EXPIRED' !== subscription.status || 'CANCELLED' !== subscription.status) {                                
+                    subscription.resendActivation = 1;
+                } else {
+                    subscription.resendActivation = 0;
+                }
             }
-            this.switchTo("search-detail", {searchResult: [subscription]});    
+            this.switchTo("search-detail", {searchResult: [subscription]});
         }
     };
 }());

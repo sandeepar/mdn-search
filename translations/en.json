@@ -148,7 +148,11 @@
         "value" : "Change Serial Number",
         "title" : "Change Serial Number label"
     },
-    "btn_save" : {
+    "btn_changeMdn" : {
+        "value" : "Save",
+        "title" : "Save Button"
+    },
+    "btn_changeSerial" : {
         "value" : "Save",
         "title" : "Save Button"
     },
@@ -163,5 +167,13 @@
     "vendor_message" : {
     	"value" : "Please select your vendor to view the MDN information",
         "title" : "Vendor message"
+    },
+    "mdn-required": {
+        "value": "Please enter valid phone number!",
+        "title": "No mobile number"        
+    },
+    "serial-required": {
+        "value": "Please enter serial number!",
+        "title": "No serial number"        
     }
 }
