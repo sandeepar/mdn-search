@@ -98,7 +98,7 @@
                     var subscription = this.store('current-subscription');                
                     var params = {
                         new_mdn:this.$("#mdn-change").val(),
-                        device_activation_id: subscription.device_activation_id
+                        mdn: subscription.mdn
                     };            
                     this.changeMobileDeviceNumber(params, subscription.id);
                 } else {
@@ -110,7 +110,8 @@
                 if ('' !== this.$("#serial-change").val()) {
                     var subscription = this.store('current-subscription');                
                     var params = {
-                        new_serial_number:this.$("#serial-change").val()                    
+                        new_serial_number:this.$("#serial-change").val(),
+                        mdn: subscription.mdn
                     };
                     this.changeMobileSerialNumber(params, subscription.id);
                 } else {
@@ -153,7 +154,7 @@
                 this._callSubscriptionView(subscription);
             });
         },
-        autoSearch: function(key) {
+        autoSearch: function(key) {            
             var MDNLength = key.length;
             var minKey = MIN_SEARCH;            
             if (MDNLength >= minKey) {
@@ -280,7 +281,7 @@
         _getAutoCompleteMDNList: function() {
             if (this.store('authenticated')) {
                 this.ajax('getAllMDNList')
-                        .done(function(data) {
+                        .done(function(data) {                            
                             this.store('mdnList', data);
                         });
             }
