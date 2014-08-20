@@ -5,8 +5,8 @@
             NQ_MDN_SEARCH = '%@/api/mdn/%@?vendor_id=%@',
             NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
             NQ_MDN_ALL_LIST = '%@/api/mdn',
-            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&device_detail_id=%@',
-            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&device_detail_id=%@',
+            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&device_activation_id=%@',
+            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&device_activation_id=%@',
             NQ_MDN_CHANGE_REQUEST = '%@/api/retail/%@',
             NQ_SERIAL_CHANGE_REQUEST = '%@/api/retail/%@',
             MIN_SEARCH = '2';
@@ -28,11 +28,11 @@
             getAllMDNList: function() {
                 return this._getRequest(helpers.fmt(NQ_MDN_ALL_LIST, NQ_BASE_URI));
             },
-            resendActivation: function(mdn, id) {
-                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn, id));
+            resendActivation: function(id, deviceActivationId) {
+                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, id, deviceActivationId));
             },
-            requestActivation: function(mdn, id) {
-                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn, id));
+            requestActivation: function(id, deviceActivationId) {
+                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, id, deviceActivationId));
             },
             requestMdnChange: function(params, id) {
                 return this._postRequest(
@@ -85,7 +85,7 @@
                 var id = event.currentTarget.attributes[1].value;
                 var subscription = _.find(this.store('subscriptions'), 
                     function(subscription) {
-                        return subscription.id === id;
+                        return subscription.device_activation_id === id;
                     }
                 );
                 this.store('current-subscription', subscription);
@@ -111,7 +111,8 @@
                     var subscription = this.store('current-subscription');                
                     var params = {
                         new_serial_number:this.$("#serial-change").val(),
-                        mdn: subscription.mdn
+                        mdn: subscription.mdn,
+                        device_activation_id: subscription.device_activation_id
                     };
                     this.changeMobileSerialNumber(params, subscription.id);
                 } else {
@@ -123,36 +124,36 @@
         resend: function(key) {
             this.switchTo("loader");
             var subscription = this.store('current-subscription');
-            this.ajax('resendActivation', key, subscription.id)
-                    .done(function(data) {
-                        if (200 === data.code) {
-                            services.notify(data.message);
-                            this._callSubscriptionView(data.subscription[0]);
-                        } else if (200 !== data.code) {
-                            services.notify(data.message, 'error');
-                            this._callSubscriptionView(subscription);
-                        }
-                    }).fail(function(data) {
-                services.notify(data.statusText, 'error');
-                this._callSubscriptionView(subscription);
-            });
+            this.ajax('resendActivation', subscription.id, subscription.device_activation_id)
+                .done(function(data) {
+                    if (200 === data.code) {
+                        services.notify(data.message);
+                        this._callSubscriptionView(data.subscription);
+                    } else if (200 !== data.code) {
+                        services.notify(data.message, 'error');
+                        this._callSubscriptionView(subscription);
+                    }
+                }).fail(function(data) {
+                    services.notify(data.statusText, 'error');
+                    this._callSubscriptionView(subscription);
+                });
         },
         request: function(key) {
             this.switchTo("loader");
             var subscription = this.store('current-subscription');
-            this.ajax('requestActivation', key, subscription.id)
-                    .done(function(data) {
-                        if (200 === data.code) {
-                            services.notify(data.message);
-                            this._callSubscriptionView(data.subscription[0]);
-                        } else if (200 !== data.code) {
-                            services.notify(data.message, 'error');
-                            this._callSubscriptionView(subscription);
-                        }
-                    }).fail(function(data) {
-                services.notify(data.statusText, 'error');
-                this._callSubscriptionView(subscription);
-            });
+            this.ajax('requestActivation', subscription.id, subscription.device_activation_id)
+                .done(function(data) {
+                    if (200 === data.code) {
+                        services.notify(data.message);
+                        this._callSubscriptionView(data.subscription);
+                    } else if (200 !== data.code) {
+                        services.notify(data.message, 'error');
+                        this._callSubscriptionView(subscription);
+                    }
+                }).fail(function(data) {
+                    services.notify(data.statusText, 'error');
+                    this._callSubscriptionView(subscription);
+                });
         },
         autoSearch: function(key) {            
             var MDNLength = key.length;
@@ -172,17 +173,11 @@
                         .done(function(data) {                                                        
                             if (!data.hasOwnProperty('code')) {                                
                                 if (data.length > 1) {
-                                    this.store('subscriptions', data);
-                                    
-                                    var partners = [];
-                                    _.each(data, function(subscription) {
-                                        var partner = {};
-                                        partner.id = subscription.id;
-                                        partner.name = subscription.carrier;                                        
-                                        partners.push(partner);
-                                    });                                    
-                                    this.store('partner-list', partners);
-                                    this._callSubscriptionView(partners);
+                                    this.store('subscriptions', data);                                    
+                                    var offers = [];
+                                    offers = this._getMobileDeviceOffers(data);                                    
+                                    this.store('offer-list', offers);
+                                    this._callSubscriptionView(offers);
                                 } else {                                                                                                          
                                     this._callSubscriptionView(data[0]);
                                 }
@@ -298,6 +293,21 @@
                 }
             }
             this.switchTo("search-detail", {searchResult: [subscription]});
+        },
+        _getMobileDeviceOffers: function(data) {
+            var offers = [];
+            _.each(data, function(subscription) {
+                var deviceActivation = {};
+                var offerDetail = [];
+                deviceActivation.id = subscription.device_activation_id;
+                offerDetail.push(subscription.model);
+                offerDetail.push(subscription.carrier);
+                offerDetail.push(subscription.channel_type);
+                deviceActivation.offerDetail = offerDetail.join('_');                        
+                offers.push(deviceActivation);
+            });
+            
+            return offers;
         }
     };
 }());

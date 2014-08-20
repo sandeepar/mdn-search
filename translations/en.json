@@ -76,13 +76,13 @@
     	"value" : "Request for new subscription",
         "title" : "Request message"
     },
-    "customer-information-label" : {
-    	"value" : "Customer Information",
-        "title" : "Customer info"
+    "device-information-label" : {
+    	"value" : "Device Information",
+        "title" : "Device info"
     },
-    "mdn-information-label" : {
-    	"value" : "MDN Information",
-        "title" : "MDN info"
+    "subscription-information-label" : {
+    	"value" : "Subscription Information",
+        "title" : "Subscription info"
     },
     "no-data-available" : {
     	"value" : "No Data available",
@@ -164,8 +164,8 @@
     	"value" : "Notification Date",
         "title" : "Notification Date label"
     },
-    "vendor_message" : {
-    	"value" : "Please select your vendor to view the MDN information",
+    "mobile-offer-selection-label" : {
+    	"value" : "Please select one of the following to view the MDN information",
         "title" : "Vendor message"
     },
     "mdn-required": {

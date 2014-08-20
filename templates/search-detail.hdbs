@@ -6,7 +6,7 @@
     	{{else}}
         	{{#each searchResult}}
         		{{#if id}}
-                                <p class="space txt-color"><b>{{t "customer-information-label"}}</b></p>
+                                <p class="space txt-color"><b>{{t "device-information-label"}}</b></p>
         			<ul class="search-detail-box">
         				<li><b>{{t "name-label"}} :</b> {{first_name}} {{middle_name}} {{last_name}}</li>
         				<li><b>{{t "email-label"}} :</b> {{email}}</li>
@@ -14,7 +14,7 @@
         				<li><b>{{t "device-serial-label"}} :</b> {{serial_number}}</li>
         				<li><b>{{t "device-make-label"}} :</b> {{make}} {{model}}</li>        				
         			</ul>
-        			<p class="space txt-color"><b>{{t "mdn-information-label"}}</b></p>
+        			<p class="space txt-color"><b>{{t "subscription-information-label"}}</b></p>
         			<ul class="search-detail-box">
         				<li><b>{{t "activation-code-label"}} :</b> {{activation_code}}</li>
         				<li><b>{{t "status-label"}} :</b> {{status}}</li>
@@ -27,22 +27,22 @@
                                 {{#if isRetail}}
                                     <ul class="search-detail-box">
                                     <form action="" name="service-transfer-form" method="POST">
-        				<li><b>{{t "change-mdn-label"}} :</b> 
-                                            <input type="text" name="mdn-change" id="mdn-change"/>                                        
+        				<li><b style="width: 100%; display: inline-block">{{t "change-mdn-label"}} :</b> 
+                                            <input type="text" style="width: 60%; margin: 3px" name="mdn-change" id="mdn-change"/>                                        
                                             <button class="btn btn-inverse change_mdn">{{t "btn_changeMdn"}}</button>
                                         </li>
-        				<li><b>{{t "change-serial-label"}} :</b> 
-                                            <input type="text" name="serial-change" id="serial-change"/>                                        
+        				<li><b style="width: 100%; display: inline-block">{{t "change-serial-label"}} :</b> 
+                                            <input type="text" style="width: 60%; margin: 3px" name="serial-change" id="serial-change"/>                                        
                                             <button class="btn btn-inverse change_serial">{{t "btn_changeSerial"}}</button>
                                         </li>
                                     </form>
                                     </ul>
                                 {{/if}}
                         {{else}}
-                            <p class="pad-bot10 p-color">{{t "vendor_message"}}</p>
+                            <p class="pad-bot10 p-color">{{t "mobile-offer-selection-label"}}</p>
                             {{#each this}}
                               <li class="vendor-box">
-                                <a class="vendor" value="{{id}}" >{{name}}</a>
+                                <a class="vendor" value="{{id}}" >{{offerDetail}}</a>
                               </li>
                             {{/each}}
                             <li><span class="error">{{Message}}</span></li>
@@ -61,15 +61,13 @@
 <div>
 <form action="" name="mdn-activate-form" method="POST">
     {{#if resendActivation}} 
-    <div class="pad10">
-	 <p class="pad-bot5 txt-color">{{t "resend_message"}}</p>
-      <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
+    <div class="pad10">	 
+       <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
      </div>
     {{/if}}
-     <div class="pad10">
-     <p class="pad-bot5 txt-color">{{t "request_message"}}</p>
-      <button class="btn btn-inverse request">{{t "btn_request"}}</button>
-      </div>
+    <div class="pad10">     
+       <button class="btn btn-inverse request">{{t "btn_request"}}</button>
+    </div>
 </form>
 </div>
 {{/if}}
