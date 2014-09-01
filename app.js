@@ -1,6 +1,6 @@
 (function() {
 
-    var NQ_BASE_URI = 'http://nq-subscribe.new.cosdevx.com',
+    var NQ_BASE_URI = 'http://nqsm.cosdevx.com',
             NQ_OAUTH = '%@/api/auth',
             NQ_MDN_SEARCH = '%@/api/mdn/%@?vendor_id=%@',
             NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
@@ -285,7 +285,7 @@
             if (subscription.hasOwnProperty('id')) {
                 this.store('current-subscription', subscription);
                 subscription.isRetail = (null === subscription.channel_type)? 
-                    0 : ('Insurance' === subscription.channel_type)? 0 : 1;     
+                    0 : ("Insurance (Loader File)" === subscription.channel_type)? 0 : 1;     
                 if ('EXPIRED' !== subscription.status || 'CANCELLED' !== subscription.status) {                                
                     subscription.resendActivation = 1;
                 } else {
@@ -298,12 +298,10 @@
             var offers = [];
             _.each(data, function(subscription) {
                 var deviceActivation = {};
-                var offerDetail = [];
+                var activationCodes = [];
                 deviceActivation.id = subscription.device_activation_id;
-                offerDetail.push(subscription.model);
-                offerDetail.push(subscription.carrier);
-                offerDetail.push(subscription.channel_type);
-                deviceActivation.offerDetail = offerDetail.join('_');                        
+                activationCodes.push(subscription.activation_code);
+                deviceActivation.activationCode = activationCodes;                        
                 offers.push(deviceActivation);
             });
             

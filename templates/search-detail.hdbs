@@ -42,7 +42,7 @@
                             <p class="pad-bot10 p-color">{{t "mobile-offer-selection-label"}}</p>
                             {{#each this}}
                               <li class="vendor-box">
-                                <a class="vendor" value="{{id}}" >{{offerDetail}}</a>
+                                <a class="vendor" value="{{id}}" >{{activationCode}}</a>
                               </li>
                             {{/each}}
                             <li><span class="error">{{Message}}</span></li>
