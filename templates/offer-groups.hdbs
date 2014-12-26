@@ -1,0 +1,28 @@
+<div class="main-box">
+    <ul class="search-detail-box">
+        {{#if offers}}
+            <p class="pad-bot10 p-color">{{t "mobile-offer-selection-label"}}</p>
+                {{#each offers}}
+                    <li class="vendor-box"><a class="offer-group" value="{{this}}" >{{this}}</a></li>
+                {{/each}}
+            <li><span class="error">{{Message}}</span></li>
+        {{/if}}
+        {{#if activationCodes}}
+            <p class="pad-bot10 p-color">{{t "mobile-subscription-selection-label"}}</p>
+                {{#each activationCodes}}
+                    <li class="vendor-box"><a class="activation-code" value="{{this}}" >{{this}}</a></li>
+                {{/each}}
+                
+            <form action="" name="mdn-activate-form" method="POST">
+                {{#if resendActivation}} 
+                    <div class="pad-top5">	 
+                        <button class="btn btn-inverse resend">{{t "btn_resend"}}</button>
+                    </div>
+                    <div class="pad-top5">     
+                        <button class="btn btn-inverse request">{{t "btn_request"}}</button>
+                    </div>
+                {{/if}}                
+            </form>    
+        {{/if}}
+    </ui>
+</div>

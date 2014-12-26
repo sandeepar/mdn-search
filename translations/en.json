@@ -165,7 +165,7 @@
         "title" : "Notification Date label"
     },
     "mobile-offer-selection-label" : {
-    	"value" : "Please select one of the following activation code to view the MDN information",
+    	"value" : "Please select one of the following offer group to view the activation code details",
         "title" : "Vendor message"
     },
     "mdn-required": {
@@ -175,5 +175,9 @@
     "serial-required": {
         "value": "Please enter serial number!",
         "title": "No serial number"        
+    },
+    "mobile-subscription-selection-label" : {
+    	"value" : "Please select one of the following activation code to view the subscription details",
+        "title" : "Vendor message"
     }
 }
