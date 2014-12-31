@@ -1,17 +1,20 @@
 (function() {
 
-    var NQ_BASE_URI = 'http://nq-subscribe.new.cosdevx.com',
+    var NQ_BASE_URI = 'http://sabo-subscribe.new.cosdevx.com/',
             NQ_OAUTH = '%@/api/auth',
             NQ_MDN_SEARCH = '%@/api/mdn/%@?vendor_id=%@',
             NQ_MDN_AUTO_COMPLETE = '%@/search.php?key=auto-search&mdn=%@',
             NQ_MDN_ALL_LIST = '%@/api/mdn',
-            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&device_detail_id=%@',
-            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&device_detail_id=%@',
+            NQ_MDN_RESEND = '%@/api/subscription/%@?notify=true&shortened_code=%@',
+            NQ_MDN_NEW_REQUEST = '%@/api/subscription/%@?activate=true&shortened_code=%@',
             NQ_MDN_CHANGE_REQUEST = '%@/api/retail/%@',
             NQ_SERIAL_CHANGE_REQUEST = '%@/api/retail/%@',
             MIN_SEARCH = '2';
 
     return {
+        resources: {            
+            MDN_PATTERN: /\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/
+        },
         requests: {
             authenticateAgent: function() {
                 return this._getRequest(helpers.fmt(NQ_OAUTH, NQ_BASE_URI));
@@ -25,27 +28,27 @@
             getAllMDNList: function() {
                 return this._getRequest(helpers.fmt(NQ_MDN_ALL_LIST, NQ_BASE_URI));
             },
-            resendActivation: function(mdn, id) {
-                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, mdn, id));
+            resendActivation: function(deviceDetailId, shortenedCode) {
+                return this._getRequest(helpers.fmt(NQ_MDN_RESEND, NQ_BASE_URI, deviceDetailId, shortenedCode));
             },
-            requestActivation: function(mdn, id) {
-                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, mdn, id));
+            requestActivation: function(deviceDetailId, shortenedCode) {
+                return this._getRequest(helpers.fmt(NQ_MDN_NEW_REQUEST, NQ_BASE_URI, deviceDetailId, shortenedCode));
             },
-            requestMdnChange: function(currentSubscription, mdn) {
+            requestMdnChange: function(params, id) {
                 return this._postRequest(
-                    currentSubscription, 
-                    helpers.fmt(NQ_MDN_CHANGE_REQUEST, NQ_BASE_URI, mdn)
+                    params, 
+                    helpers.fmt(NQ_MDN_CHANGE_REQUEST, NQ_BASE_URI, id)
                 );
             },
-            requestMobileSerialChange: function(currentSubscription, mdn) {
+            requestMobileSerialChange: function(params, id) {
                 return this._postRequest(
-                    currentSubscription, 
-                    helpers.fmt(NQ_SERIAL_CHANGE_REQUEST, NQ_BASE_URI, mdn)
+                    params, 
+                    helpers.fmt(NQ_SERIAL_CHANGE_REQUEST, NQ_BASE_URI, id)
                 );
             }
         },
         events: {
-            'app.created': 'appLoader',
+            'app.activated': 'appLoader',
             'click .search': function(event) {
                 event.preventDefault();
                 if (this.store('authenticated')) {
@@ -82,7 +85,7 @@
                 var id = event.currentTarget.attributes[1].value;
                 var subscription = _.find(this.store('subscriptions'), 
                     function(subscription) {
-                        return subscription.id === id;
+                        return subscription.device_activation_id === id;
                     }
                 );
                 this.store('current-subscription', subscription);
@@ -90,51 +93,91 @@
             },
             'click .change_mdn' : function(event) {
                 event.preventDefault();
-                this.changeMobileDeviceNumber(
-                    this.store('current-subscription'), this.$("#mdn-search").val());
+                var newMdn = this.$("#mdn-change").val();                
+                if (this.resources.MDN_PATTERN.test(newMdn)) {
+                    var subscription = this.store('current-subscription');                
+                    var params = {
+                        new_mdn:this.$("#mdn-change").val(),
+                        mdn: subscription.mdn
+                    };            
+                    this.changeMobileDeviceNumber(params, subscription.id);
+                } else {
+                    services.notify(this.I18n.t('mdn-required'), 'error');
+                }
             },
             'click .change_serial' : function(event) {
                 event.preventDefault();
-                this.changeMobileSerialNumber(
-                    this.store('current-subscription'), this.$("#mdn-search").val());
+                if ('' !== this.$("#serial-change").val()) {
+                    var subscription = this.store('current-subscription');                
+                    var params = {
+                        new_serial_number:this.$("#serial-change").val(),
+                        mdn: subscription.mdn,
+                        device_activation_id: subscription.device_activation_id
+                    };
+                    this.changeMobileSerialNumber(params, subscription.id);
+                } else {
+                    services.notify(this.I18n.t('serial-required'), 'error');
+                }
+            },
+            'click .offer-group': function(event) {
+                event.preventDefault();
+                var offerGroup = event.currentTarget.attributes[1].value;                                
+                this.store('selected-offer-group', offerGroup);
+                var offerActivations = _.find(this.store('subscriptions'), 
+                    function(subscription, key) {
+                        return key === offerGroup;
+                    }
+                );
+                this._callActivationCodeView(offerActivations);
+            },
+            'click .activation-code': function(event) {
+                event.preventDefault();
+                var activationCode = event.currentTarget.attributes[1].value;                
+                var subscription = _.find(this.store('offer-activations'), 
+                    function(activation, key) {
+                        return activation.activation_code === activationCode;
+                    }
+                );                                
+                this._callSubscriptionView(subscription);
             }
         },
         
         resend: function(key) {
-            this.switchTo("loader");
+            this.switchTo("loader");                   
             var subscription = this.store('current-subscription');
-            this.ajax('resendActivation', key, subscription.id)
-                    .done(function(data) {
-                        if (200 === data.code) {
-                            services.notify(data.message);
-                            this._callSubscriptionView(data.subscription[0]);
-                        } else if (200 !== data.code) {
-                            services.notify(data.message, 'error');
-                            this._callSubscriptionView(this.store(key));
-                        }
-                    }).fail(function(data) {
-                services.notify(data.statusText, 'error');
-                this._callSubscriptionView(this.store(key));
-            });
+            
+            this.ajax('resendActivation', subscription.id, subscription.shortened_code)
+                .done(function(data) {
+                    if (200 === data.code) {
+                        services.notify(data.message);
+                        var activationCodes = this._getActivationCodes(this.store('offer-activations'));                                                
+                        this.switchTo("offer-groups", activationCodes);
+                    } else if (200 !== data.code) {
+                        services.notify(data.message, 'error');                        
+                    }
+                }).fail(function(data) {
+                    services.notify(data.statusText, 'error');                    
+                });
         },
         request: function(key) {
             this.switchTo("loader");
-            var subscriptionData = this.store(key);
-            this.ajax('requestActivation', key, subscriptionData.vendor_id)
-                    .done(function(data) {
-                        if (200 === data.code) {
-                            services.notify(data.message);
-                            this._callSubscriptionView(data.subscription[0]);
-                        } else if (200 !== data.code) {
-                            services.notify(data.message, 'error');
-                            this._callSubscriptionView(this.store(key));
-                        }
-                    }).fail(function(data) {
-                services.notify(data.statusText, 'error');
-                this._callSubscriptionView(this.store(key));
-            });
+            var subscription = this.store('current-subscription');
+            this.ajax('requestActivation', subscription.id, subscription.shortened_code)
+                .done(function(data) {
+                    if (200 === data.code) {
+                        services.notify(data.message);
+                        this.store('subscriptions', data.subscription);
+                        this._callOfferGroupView(data.subscription);
+                    } else if (200 !== data.code) {
+                        services.notify(data.message, 'error');
+                        this._callSubscriptionView(subscription);
+                    }
+                }).fail(function(data) {
+                    services.notify(data.statusText, 'error');
+                    this._callSubscriptionView(subscription);
+                });
         },
-        autoSearch: function(key) {
+        autoSearch: function(key) {            
             var MDNLength = key.length;
             var minKey = MIN_SEARCH;            
             if (MDNLength >= minKey) {
@@ -151,25 +194,10 @@
                 this.ajax('searchPage', searchData, vendorId)
                         .done(function(data) {                                                        
                             if (!data.hasOwnProperty('code')) {                                
-                                if (data.length > 1) {
-                                    this.store('subscriptions', data);
-                                    
-                                    var partners = [];
-                                    _.each(data, function(subscription) {
-                                        var partner = {};
-                                        partner['id'] = subscription.id;
-                                        partner['name'] = subscription.carrier;                                        
-                                        partners.push(partner);
-                                    });                                    
-                                    this.store('partner-list', partners);
-                                    this._callSubscriptionView(partners);
-                                } else {                                    
-                                    this.store('current-subscription', data[0]);                                    
-                                    this._callSubscriptionView(data[0]);
-                                }
-                            } else {                                
-                                this.store('current-subscription', data[0]);
-                                this._callSubscriptionView(data[0]);
+                                this.store('subscriptions', data);
+                                this._callOfferGroupView(data);
+                            } else {                                                                
+                                this.switchTo("search-detail", {searchResult: data});
                             }
                         }).fail(function(data) {
                     services.notify(data.statusText, 'error');
@@ -198,29 +226,33 @@
                             this._getAutoCompleteMDNList();
                         } else {
                             this.store('authenticated', false);
-                            services.notify(data.message, 'error');
+                            services.notify(data.message, 'error'); 
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
             });
         },
-        changeMobileDeviceNumber : function () {
-            this.ajax('requestMdnChange')
+        changeMobileDeviceNumber: function (params, id) {
+            this.switchTo("loader");
+            var postData = JSON.stringify(params);            
+            this.ajax('requestMdnChange', postData, id)
                     .done(function(data) {
                         if (200 === data.code) {                            
-                            this.store('current-subscription', data[0]);
-                            this._callSubscriptionView(data[0]);
+                            services.notify(data.message);
+                            this._callSubscriptionView(data.subscription[0]);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
             });
         },
-        changeMobileSerialNumber : function () {
-            this.ajax('requestMobileSerialChange')
+        changeMobileSerialNumber : function (params, id) {
+            this.switchTo("loader");
+            var postData = JSON.stringify(params);
+            this.ajax('requestMobileSerialChange', postData, id)
                     .done(function(data) {
                         if (200 === data.code) {                            
-                            this.store('current-subscription', data[0]);
-                            this._callSubscriptionView(data[0]);
+                            services.notify(data.message);
+                            this._callSubscriptionView(data.subscription[0]);
                         }
                     }).fail(function(data) {
                 services.notify(data.statusText, 'error');
@@ -259,21 +291,57 @@
         _getAutoCompleteMDNList: function() {
             if (this.store('authenticated')) {
                 this.ajax('getAllMDNList')
-                        .done(function(data) {
+                        .done(function(data) {                            
                             this.store('mdnList', data);
                         });
             }
         },
-        _callSubscriptionView: function (subscription) {
-            
-            subscription.isRetail = (null === subscription.channel_type)? 
-                0 : ('Insurance' === subscription.channel_type)? 0 : 1;     
-            if ('EXPIRED' !== subscription.status || 'CANCELLED' !== subscription.status) {                                
+        _callSubscriptionView: function (subscription) {                        
+            subscription.isRetail = (null === subscription.channel_type) ?
+                    0 : ("Insurance" === subscription.channel_type) ? 0 : 1;
+            if ('EXPIRED' !== subscription.status || 'CANCELLED' !== subscription.status) {
                 subscription.resendActivation = 1;
             } else {
                 subscription.resendActivation = 0;
             }
-            this.switchTo("search-detail", {searchResult: [subscription]});    
+            this.switchTo("search-detail", {searchResult: [subscription]});
+        },
+        _getMobileDeviceOffers: function(data) {
+            var offers = [];            
+            _.each(data, function(v, offerGroupName) {                 
+                offers.push(offerGroupName);
+            });
+            
+            return {offers : offers};
+        },
+        _getActivationCodes: function(subscriptions) {
+            var activationCodes = [];
+            var subscription = {};            
+            var resendActivationFlag;
+            _.each(subscriptions, function(activations, key) {
+                subscription.id = activations.id;
+                subscription.shortened_code = activations.shortened_code;
+                subscription.device_ctivation_id = activations.device_activation_id;
+                activationCodes.push(activations.activation_code);
+                if ('EXPIRED' === activations.status || 'CANCELLED' === activations.status) {                    
+                    resendActivationFlag = 0;
+                } else {
+                    resendActivationFlag = 1;
+                }                
+            });
+            this.store('current-subscription', subscription);
+            return {activationCodes : activationCodes, resendActivation : resendActivationFlag};
+        },
+        _callActivationCodeView: function (offerActivations) {
+            this.store('offer-activations', offerActivations);
+            var activationCodes = this._getActivationCodes(offerActivations);                                                
+            this.switchTo("offer-groups", activationCodes);
+        },
+        _callOfferGroupView : function (data) {
+            var offers;
+            offers = this._getMobileDeviceOffers(data);
+            this.store('offer-list', offers);
+            this.switchTo("offer-groups", offers);
         }
     };
 }());

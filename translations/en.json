@@ -76,13 +76,13 @@
     	"value" : "Request for new subscription",
         "title" : "Request message"
     },
-    "customer-information-label" : {
-    	"value" : "Customer Information",
-        "title" : "Customer info"
+    "device-information-label" : {
+    	"value" : "Device Information",
+        "title" : "Device info"
     },
-    "mdn-information-label" : {
-    	"value" : "MDN Information",
-        "title" : "MDN info"
+    "subscription-information-label" : {
+    	"value" : "Subscription Information",
+        "title" : "Subscription info"
     },
     "no-data-available" : {
     	"value" : "No Data available",
@@ -148,7 +148,11 @@
         "value" : "Change Serial Number",
         "title" : "Change Serial Number label"
     },
-    "btn_save" : {
+    "btn_changeMdn" : {
+        "value" : "Save",
+        "title" : "Save Button"
+    },
+    "btn_changeSerial" : {
         "value" : "Save",
         "title" : "Save Button"
     },
@@ -160,8 +164,20 @@
     	"value" : "Notification Date",
         "title" : "Notification Date label"
     },
-    "vendor_message" : {
-    	"value" : "Please select your vendor to view the MDN information",
+    "mobile-offer-selection-label" : {
+    	"value" : "Please select one of the following offer group to view the activation code details",
+        "title" : "Vendor message"
+    },
+    "mdn-required": {
+        "value": "Please enter valid phone number!",
+        "title": "No mobile number"        
+    },
+    "serial-required": {
+        "value": "Please enter serial number!",
+        "title": "No serial number"        
+    },
+    "mobile-subscription-selection-label" : {
+    	"value" : "Please select one of the following activation code to view the subscription details",
         "title" : "Vendor message"
     }
 }

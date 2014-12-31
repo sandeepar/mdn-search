@@ -8,5 +8,3 @@
       <button class="btn btn-inverse clear">{{t "btn_clear"}}</button>
 </form>
 <section data-main/>
-<footer>
-</footer>
